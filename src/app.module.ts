@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerService } from './logger/logger.service';
+import { SocketGateway } from './socket/socket.gateway';
+import { AlertController } from './alert/alert.controller';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import envConfig from '../config/env';
       }),
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService, LoggerService],
+  controllers: [AlertController],
+  providers: [LoggerService, SocketGateway],
 })
 export class AppModule { }

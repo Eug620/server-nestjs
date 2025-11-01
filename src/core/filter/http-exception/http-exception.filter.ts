@@ -34,6 +34,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const errorResponse = {
       code: -1,
+      data: null,
       msg: validMessage || message,
     };
 

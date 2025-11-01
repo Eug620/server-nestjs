@@ -45,7 +45,7 @@ export class TransformInterceptor implements NestInterceptor {
 
       map((data) => {
         return {
-          code: 0,
+          code: 200,
           msg: 'success',
           data,
         };

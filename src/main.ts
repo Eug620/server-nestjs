@@ -24,6 +24,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
+  
 
   // 支持静态资源
   app.useStaticAssets('public', { prefix: '/static' });
