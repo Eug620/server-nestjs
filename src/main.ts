@@ -29,6 +29,9 @@ async function bootstrap() {
   // 支持静态资源
   app.useStaticAssets('public', { prefix: '/static' });
 
+  // 启用 CORS（允许所有域）
+  // app.enableCors();
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
