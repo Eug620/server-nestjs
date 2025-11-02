@@ -2,7 +2,7 @@
  * @Author       : eug yyh3531@163.com
  * @Date         : 2025-11-01 13:38:38
  * @LastEditors  : eug yyh3531@163.com
- * @LastEditTime : 2025-11-01 15:47:13
+ * @LastEditTime : 2025-11-02 08:53:34
  * @FilePath     : /server-nestjs/src/socket/socket.gateway.ts
  * @Description  : filename
  * 
@@ -13,7 +13,7 @@ import type { OnGatewayConnection, OnGatewayDisconnect, WsResponse } from '@nest
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 
-@WebSocketGateway(8030, {
+@WebSocketGateway(3001, {
   path: '/websocket',
   serveClient: true,
   namespace: '/',
