@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { LoggerService } from './logger/logger.service';
 import { SocketGateway } from './socket/socket.gateway';
+import { WsJwtAuthGuard } from './socket/socket.guard'
 import { AlertController } from './alert/alert.controller';
 import { UserModule } from './user/user.module';
 import { UserEntity } from './user/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -26,10 +30,24 @@ import envConfig from '../config/env';
         database: configService.get('DB_DATABASE'), //数据库名
         timezone: '+08:00', //服务器上配置的时区
         synchronize: true, //根据实体自动创建数据库表， 生产环境建议关闭
-        logging: true, // 开启打印生成sql语句
+        // logging: true, // 开启打印生成sql语句
       }),
     }),
+    PassportModule,
+    // 配置 JWT 模块
+    JwtModule.registerAsync({
+      global: true, // 关键：设置为全局模块
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'), // 从环境变量取密钥
+        signOptions: {
+          expiresIn: configService.get('JWT_EXPIRES_IN'), // 过期时间
+        },
+      }),
+      inject: [ConfigService], // 注入 ConfigService 用于读取环境变量
+    }),
+    AuthModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [AlertController],
   providers: [LoggerService, SocketGateway],

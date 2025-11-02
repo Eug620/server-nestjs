@@ -2,7 +2,7 @@
  * @Author       : eug yyh3531@163.com
  * @Date         : 2025-11-01 13:38:38
  * @LastEditors  : eug yyh3531@163.com
- * @LastEditTime : 2025-11-02 08:53:34
+ * @LastEditTime : 2025-11-02 12:46:18
  * @FilePath     : /server-nestjs/src/socket/socket.gateway.ts
  * @Description  : filename
  * 
@@ -10,9 +10,9 @@
  */
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import type { OnGatewayConnection, OnGatewayDisconnect, WsResponse } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-
+import { WsJwtAuthGuard } from './socket.guard'
 @WebSocketGateway(3001, {
   path: '/websocket',
   serveClient: true,
@@ -22,6 +22,7 @@ import { Socket, Server } from 'socket.io';
   },
 }) // 指定端口号8030
 // @WebSocketGateway() // 默认使用服务所用端口-3000
+@UseGuards(WsJwtAuthGuard) // 对整个网关的连接应用认证守卫
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() wss: Server;
 
@@ -36,6 +37,9 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   }
 
   handleConnection(client: Socket, ...args: any[]) {
+    const user = client.data.user;
+    console.log(`用户id: ${user}`,);
+    console.log(`用户username: ${user}`,);
     this.logger.log(`Client connected: ${client.id}`);
   }
 
@@ -60,6 +64,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @SubscribeMessage('msgToRoom')
   handleMessageRoom(client: Socket, message: { sender: string, room: string, message: string }): void {
     // client.to(message.room).emit('msg2client', message); // 发送给除了自己之外的房间内成员
+    console.log('msgToRoom-当前用户信息:',client.data.user)
     this.wss.to(message.room).emit('msg2client', message); // 发送给房间内所有成员包括自己
   }
 
