@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -32,7 +32,7 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private jwtService: JwtService, // 注入 JWT 服务
-        private configService: ConfigService
+    private configService: ConfigService, // 注入配置服务
     
   ) { }
 
@@ -122,7 +122,7 @@ export class UserService {
     return {
       access_token: this.jwtService.sign(payload), // 生成 Token
       token_type: 'Bearer',
-      expires_in: 60, // 与 JWT 配置的过期时间一致（秒）
+      expires_in: this.configService.get('JWT_EXPIRES_IN'), // 与 JWT 配置的过期时间一致（秒）
     };
 
   }

@@ -1,98 +1,103 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+### server-nestjs 项目介绍
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+这是一个基于 NestJS 框架开发的后端服务项目，提供了完整的 Web 服务功能，包括 RESTful API、WebSocket 通信、用户认证授权等。
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+#### 项目类型与技术栈
 
-## Description
+ - 框架：NestJS ^11.0.1
+ - 运行环境：Node.js
+ - 数据库：MySQL 5.x/8.x
+ - ORM：TypeORM ^0.3.27
+ - API 文档：Swagger
+ - 认证授权：JWT (JSON Web Token)
+ - 实时通信：Socket.IO
+ - 日志管理：Winston
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+#### 项目结构与主要模块
+ - 核心模块
 
-## Project setup
+    用户模块 (UserModule)
 
-```bash
-$ pnpm install
-```
+     - 负责用户的增删改查等基础操作
+     - 使用 TypeOrmModule 与数据库进行交互
+     - 关联 UserEntity 实体类
+     
+    认证模块 (AuthModule)
 
-## Compile and run the project
+     - 提供 JWT 认证策略
+     - 集成 Passport.js 实现身份验证
 
-```bash
-# development
-$ pnpm run start
+    WebSocket 模块 (SocketGateway)
 
-# watch mode
-$ pnpm run start:dev
+     - 支持实时双向通信
+     - 实现了消息收发、房间管理等功能
+     - 使用 JWT 进行 WebSocket 连接认证
 
-# production mode
-$ pnpm run start:prod
-```
+    日志服务 (LoggerService)
 
-## Run tests
+     - 全局日志记录功能
+     - 集成到异常过滤器和响应拦截器中
 
-```bash
-# unit tests
-$ pnpm run test
+    警报控制器 (AlertController)
 
-# e2e tests
-$ pnpm run test:e2e
+     - 处理警报相关的 API 请求
 
-# test coverage
-$ pnpm run test:cov
-```
+#### 主要功能特性
 
-## Deployment
+  1. HTTP API
+    - RESTful API 设计
+    - 请求响应统一格式转换
+    - 全局异常处理
+    - Swagger API 文档（访问路径：/docs）
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+  2. 认证与授权
+    - JWT 令牌认证
+    - 全局 JWT 模块配置
+    - WebSocket 连接认证
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+  3. 实时通信
+    - WebSocket 服务（端口 3001，路径 /websocket）
+    - 支持单用户消息、房间消息
+    - 房间管理（加入/离开房间）
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+  4. 数据库操作
+    - MySQL 数据库连接配置
+    - 实体类自动同步（开发环境）
+    - 时区设置（+08:00）
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+  5. 配置管理
+    - 环境变量配置
+    - 多环境支持（开发、测试、生产）
 
-## Resources
+#### 项目启动与开发
 
-Check out a few resources that may come in handy when working with NestJS:
+ 项目提供了完整的开发脚本：
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+  ```bash
+    # 开发模式启动
+    npm run start:dev
 
-## Support
+    # 生产模式构建
+    npm run build
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    # 生产模式运行
+    npm run start:prod
 
-## Stay in touch
+    # 格式化代码
+    npm run format
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    # 代码检查
+    npm run lint
 
-## License
+    # 运行测试
+    npm run test
+  ```
+#### 部署与配置
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+  - 支持环境变量配置，可通过 .env 文件或系统环境变量设置
+  - 主要配置项包括数据库连接信息、JWT 密钥、端口号等
+  - 静态资源支持（public 目录，访问路径：/static）
+
+#### 总结
+
+这是一个功能完善的 NestJS 后端项目，适合作为管理系统或其他 Web 应用的服务端基础框架。它集成了现代后端开发所需的各种组件，包括数据库操作、认证授权、WebSocket 通信、日志管理等，可以根据具体业务需求进行扩展和定制。

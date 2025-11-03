@@ -41,6 +41,17 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     console.log(`用户id: ${user}`,);
     console.log(`用户username: ${user}`,);
     this.logger.log(`Client connected: ${client.id}`);
+    client.emit('message', { message: 'Welcome to the WebSocket server!' });
+  }
+
+  /**   
+   * 接收客户端发送的消息
+   * @param client 
+   * @param message 
+   */
+  @SubscribeMessage('message')
+  handleMessage(client: Socket, message: string): void {
+    console.log('Message from client:', message);
   }
 
 

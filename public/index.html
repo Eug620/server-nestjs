@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接口测试页</title>
+</head>
+<body>
+    <div class="">Hello World</div>
+    <script src="./socket.io.min.js"></script>
+    <script>
+        // 1. 注册用户
+        fetch('http://localhost:3000/user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: 'admin',
+                password: '123456',
+                email: 'admin@example.com',
+            }),
+        })
+        // 2. 登录用户
+        fetch('http://localhost:3000/user/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: 'admin',
+                password: '123456',
+            }),
+        })
+        .then(res => res.json())
+        .then(({data}) => {
+            console.log(data)
+            const token = `${data.token_type} ${data.access_token}`
+            // 3. 存储 Token（例如，在 localStorage 中）
+            localStorage.setItem('access_token', token);
+            // 4. 后续请求添加 Token 到 Authorization 头
+            fetch('http://localhost:3000/user', {
+                method: 'GET',
+                headers: {
+                    'Authorization': token,
+                },
+            })
+            .then(res => res.json())
+            .then(({data}) => {
+                console.log(data)
+            })
+
+            // 5. 连接 WebSocket 服务器
+            const socket = io('ws://localhost:3001', {
+                path: '/websocket',
+                transports: ['websocket'],
+                auth: {
+                    token,
+                },
+            });
+            socket.on('connect', () => {
+                console.log('WebSocket connected');
+                // 6. 发送消息到服务器
+                socket.emit('message', { message: 'Hello, WebSocket!' });
+            });
+            socket.on('message', (event) => {
+                console.log('Message from server:', event);
+            });
+            socket.on('error', (error) => {
+                console.error('WebSocket error:', error);
+            });
+            socket.on('disconnect', () => {
+                console.log('WebSocket closed');
+            });
+
+
+        })
+    </script>
+</body>
+</html>
