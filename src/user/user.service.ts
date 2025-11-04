@@ -36,15 +36,16 @@ export class UserService {
     
   ) { }
 
+  async findeByWhere(where: object, errMsg: string) {
+    const queryUser = await this.userRepository.findOne({ where });
+    if (queryUser) {
+      throw new HttpException(errMsg, 401);
+    }
+  }
+
   async create(createUserDto: CreateUserDto): Promise<string> {
-    const queryUserByName = await this.userRepository.findOne({ where: { username: createUserDto.username } });
-    if (queryUserByName) {
-      throw new HttpException('用户名已存在', 401);
-    }
-    const queryUserByEmail = await this.userRepository.findOne({ where: { email: createUserDto.email } });
-    if (queryUserByEmail) {
-      throw new HttpException('邮箱已被注册', 401);
-    }
+    await this.findeByWhere({ username: createUserDto.username }, '用户名已存在');
+    await this.findeByWhere({ email: createUserDto.email }, '邮箱已被注册');
 
     await this.userRepository.save(Object.assign(createUserDto, {
       password: await bcrypt.hash(createUserDto.password, 8)
@@ -77,12 +78,22 @@ export class UserService {
     return userInfo
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto, user: UserInfo) {
     const existUser = await this.userRepository.findOne({ where: { id } });
     if (!existUser) {
       throw new HttpException(`id为${id}的用户不存在`, 401);
     }
-    const updatePost = this.userRepository.merge(existUser, updateUserDto);
+
+    if (user.id !== id) {
+      throw new HttpException('您没有权限更新该用户', 401);
+    }
+
+    const updateUserDtoCopy = { ...updateUserDto };
+    updateUserDto.username && await this.findeByWhere({ username: updateUserDto.username }, '用户名已存在');
+    updateUserDto.email && await this.findeByWhere({ email: updateUserDto.email }, '邮箱已被注册');
+    updateUserDto.password && (updateUserDtoCopy.password = await bcrypt.hash(updateUserDto.password, 8));
+    
+    const updatePost = this.userRepository.merge(existUser, updateUserDtoCopy);
     await this.userRepository.save(updatePost);
     return '更新用户成功'
   }
@@ -104,7 +115,7 @@ export class UserService {
    */
   async login(username: string, password: string) {
     // 1. 查询用户是否存在
-    const user = await this.userRepository.findOne({ where: { username } });;
+    const user = await this.userRepository.findOne({ where: { username } });
     if (!user) {
       throw new HttpException('用户名或密码错误', 401);
     }
@@ -115,15 +126,15 @@ export class UserService {
       throw new HttpException('用户名或密码错误', 401);
     }
 
-    // 3. 生成 JWT  payload（存储用户关键信息，避免敏感数据）
-    const payload = { id: user.id, username: user.username };
-
+    
     // 4. 生成并返回 Token
-    return {
-      access_token: this.jwtService.sign(payload), // 生成 Token
+    return Object.assign(user,{
+      // 3. 生成 JWT  payload（存储用户关键信息，避免敏感数据）
+      access_token: this.jwtService.sign({ id: user.id, username: user.username }), // 生成 Token
       token_type: 'Bearer',
       expires_in: this.configService.get('JWT_EXPIRES_IN'), // 与 JWT 配置的过期时间一致（秒）
-    };
+      password: undefined,
+    });
 
   }
 

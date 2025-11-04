@@ -40,8 +40,8 @@ export class UserController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto,@Req() request) {
+    return this.userService.update(id, updateUserDto,request.user);
   }
 
   @Delete(':id')
