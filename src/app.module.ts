@@ -10,6 +10,8 @@ import { AlertController } from './alert/alert.controller';
 import { UserModule } from './user/user.module';
 import { UserEntity } from './user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { RoomModule } from './room/room.module';
+import { RoomEntity } from './room/entities/room.entity';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import envConfig from '../config/env';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'mysql', // 数据库类型
-        entities: [UserEntity], // 数据表实体，synchronize为true时，自动创建表，生产环境建议关闭
+        entities: [UserEntity, RoomEntity], // 数据表实体，synchronize为true时，自动创建表，生产环境建议关闭
         host: configService.get('DB_HOST'), // 主机，默认为localhost
         port: configService.get<number>('DB_PORT'), // 端口号
         username: configService.get('DB_USER'), // 用户名
@@ -48,6 +50,7 @@ import envConfig from '../config/env';
     AuthModule,
     UserModule,
     AuthModule,
+    RoomModule,
   ],
   controllers: [AlertController],
   providers: [LoggerService, SocketGateway],

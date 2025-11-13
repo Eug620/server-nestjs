@@ -1,7 +1,7 @@
 
-import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 
-
+import { RoomEntity } from '../../room/entities/room.entity';
 @Entity('user')
 export class UserEntity {
     @PrimaryGeneratedColumn('uuid') // 自动生成uuid
@@ -21,4 +21,8 @@ export class UserEntity {
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
+
+    // 一个用户可以创建多个房间
+    @OneToMany(() => RoomEntity, (room) => room.user_info)
+    room: RoomEntity[];
 }
