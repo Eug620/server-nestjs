@@ -1,10 +1,10 @@
 import { Injectable, HttpException } from '@nestjs/common';
-import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
+import { CreateRoomDto } from '@/room/dto/create-room.dto';
+import { UpdateRoomDto } from '@/room/dto/update-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RoomEntity } from './entities/room.entity';
-import { UserInfo } from '../user/user.service';
+import { RoomEntity } from '@/room/entities/room.entity';
+import { UserInfo } from '@/user/user.service';
 
 export interface RoomRo {
   list: RoomEntity[];

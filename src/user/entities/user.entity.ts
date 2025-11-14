@@ -1,7 +1,7 @@
 
 import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 
-import { RoomEntity } from '../../room/entities/room.entity';
+import { RoomEntity } from '@/room/entities/room.entity';
 @Entity('user')
 export class UserEntity {
     @PrimaryGeneratedColumn('uuid') // 自动生成uuid

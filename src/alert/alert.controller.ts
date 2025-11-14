@@ -9,7 +9,7 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
  */
 import { Controller, Post, HttpCode, Body } from '@nestjs/common';
-import { SocketGateway } from '../socket/socket.gateway';
+import { SocketGateway } from '@/socket/socket.gateway';
 @Controller('alert')
 export class AlertController {
     constructor(private socketGateway: SocketGateway) { }

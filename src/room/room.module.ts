@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { RoomService } from './room.service';
-import { RoomController } from './room.controller';
+import { RoomService } from '@/room/room.service';
+import { RoomController } from '@/room/room.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoomEntity } from './entities/room.entity';
-import { UserEntity } from '../user/entities/user.entity';
+import { RoomEntity } from '@/room/entities/room.entity';
+import { UserEntity } from '@/user/entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RoomEntity, UserEntity])], // 关联数据库

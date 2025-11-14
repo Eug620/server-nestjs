@@ -9,11 +9,11 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
  */
 import { Controller, Get, Post, Body, Patch, Param, Delete,Req, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/auth.guard';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserRo } from './user.service';
+import { JwtAuthGuard } from '@/auth/auth.guard';
+import { UserService } from '@/user/user.service';
+import { CreateUserDto } from '@/user/dto/create-user.dto';
+import { UpdateUserDto } from '@/user/dto/update-user.dto';
+import { UserRo } from '@/user/user.service';
 @Controller('user')
 // @UseGuards(JwtAuthGuard) // 整个控制器的接口都需要鉴权
 export class UserController {

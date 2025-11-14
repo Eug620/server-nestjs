@@ -12,7 +12,7 @@ import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } fr
 import type { OnGatewayConnection, OnGatewayDisconnect, WsResponse } from '@nestjs/websockets';
 import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { WsJwtAuthGuard } from './socket.guard'
+import { WsJwtAuthGuard } from '@/socket/socket.guard'
 @WebSocketGateway(3001, {
   path: '/websocket',
   serveClient: true,

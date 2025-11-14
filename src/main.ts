@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './core/filter/http-exception/http-exception.filter';
-import { TransformInterceptor } from './core/interceptor/transform/transform.interceptor';
+import { AppModule } from '@/app.module';
+import { HttpExceptionFilter } from '@/core/filter/http-exception/http-exception.filter';
+import { TransformInterceptor } from '@/core/interceptor/transform/transform.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { LoggerService } from './logger/logger.service';
+import { LoggerService } from '@/logger/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

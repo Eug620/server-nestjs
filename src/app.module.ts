@@ -3,15 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { LoggerService } from './logger/logger.service';
-import { SocketGateway } from './socket/socket.gateway';
-import { WsJwtAuthGuard } from './socket/socket.guard'
-import { AlertController } from './alert/alert.controller';
-import { UserModule } from './user/user.module';
-import { UserEntity } from './user/entities/user.entity';
-import { AuthModule } from './auth/auth.module';
-import { RoomModule } from './room/room.module';
-import { RoomEntity } from './room/entities/room.entity';
+import { LoggerService } from '@/logger/logger.service';
+import { SocketGateway } from '@/socket/socket.gateway';
+import { WsJwtAuthGuard } from '@/socket/socket.guard'
+import { AlertController } from '@/alert/alert.controller';
+import { UserModule } from '@/user/user.module';
+import { UserEntity } from '@/user/entities/user.entity';
+import { AuthModule } from '@/auth/auth.module';
+import { RoomModule } from '@/room/room.module';
+import { RoomEntity } from '@/room/entities/room.entity';
 import envConfig from '../config/env';
 @Module({
   imports: [
