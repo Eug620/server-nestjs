@@ -19,6 +19,11 @@ export class RoomController {
     return this.roomService.findAll(page, pageSize);
   }
 
+  @Get('/mine')
+  findMineAll(@Query('page') page: number = 1, @Query('pageSize') pageSize: number = 10, @Req() request) {
+    return this.roomService.findMineAll(page, pageSize, request.user);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.roomService.findOne(id);

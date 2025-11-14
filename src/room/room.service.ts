@@ -24,6 +24,42 @@ export class RoomService {
     }));
     return '创建房间成功';
   }
+  async findMineAll(page: number = 1, pageSize: number = 10,user: UserInfo): Promise<RoomRo>{
+        // 从数据库查询所有房间
+    const [posts, totalCount] = await this.roomRepository.findAndCount({
+      skip: (page - 1) * pageSize, // 分页偏移量
+      take: pageSize, // 每页显示的记录数
+      where: {
+        creator: user.id,
+      },
+      order: {
+        createdAt: 'ASC',
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        creator: true,
+        user_info: {
+          username: true,
+          email: true,
+          id: true,
+          createdAt: true,
+          updatedAt: true
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+      relations: ['user_info'],
+
+    });
+    return {
+      list: posts,
+      count: totalCount,
+      totalPages: Math.ceil(totalCount / pageSize), // 计算总页数
+      currentPage: page, // 当前页
+    };
+  }
 
   async findAll(page: number = 1, pageSize: number = 10): Promise<RoomRo> {
     // 从数据库查询所有房间

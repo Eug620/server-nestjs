@@ -182,6 +182,18 @@
                     //     .then(({ data }) => {
                     //         console.log(data)
                     //     })
+
+                    // 13. 获取我的房间列表
+                    fetch(`http://localhost:3000/room/mine`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': token,
+                        },
+                    })
+                        .then(res => res.json())
+                        .then(({ data }) => {
+                            console.log(data)
+                        })
                 })
         }
 
