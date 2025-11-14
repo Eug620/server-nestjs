@@ -9,10 +9,10 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
  */
 import { Module } from '@nestjs/common';
-import { UserService } from '@/user/user.service';
-import { UserController } from '@/user/user.controller';
+import { UserService } from '@/modules/user/user.service';
+import { UserController } from '@/modules/user/user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '@/user/entities/user.entity';
+import { UserEntity } from '@/modules/user/entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity])], // 关联数据库

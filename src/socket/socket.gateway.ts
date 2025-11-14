@@ -9,7 +9,7 @@
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
  */
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import type { OnGatewayConnection, OnGatewayDisconnect, WsResponse } from '@nestjs/websockets';
+import type { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { WsJwtAuthGuard } from '@/socket/socket.guard'

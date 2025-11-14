@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
-import { RoomService } from '@/room/room.service';
-import { CreateRoomDto } from '@/room/dto/create-room.dto';
-import { UpdateRoomDto } from '@/room/dto/update-room.dto';
-import { JwtAuthGuard } from '@/auth/auth.guard';
+import { RoomService } from '@/modules/room/room.service';
+import { CreateRoomDto } from '@/modules/room/dto/create-room.dto';
+import { UpdateRoomDto } from '@/modules/room/dto/update-room.dto';
+import { JwtAuthGuard } from '@/modules/auth/auth.guard';
 
 @Controller('room')
 @UseGuards(JwtAuthGuard)

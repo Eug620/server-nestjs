@@ -202,6 +202,24 @@
                 })
         }
 
+
+        setInterval(() => {
+            fetch(`http://localhost:3000/alert`, {
+                method: 'post',
+                headers: {
+                    // 'Authorization': token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: '这是一条通知',
+                }),
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                })
+        }, 3000);
+
     </script>
 </body>
 

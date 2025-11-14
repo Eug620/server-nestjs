@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@/app.module';
-import { HttpExceptionFilter } from '@/core/filter/http-exception/http-exception.filter';
-import { TransformInterceptor } from '@/core/interceptor/transform/transform.interceptor';
+import { HttpExceptionFilter } from '@/common/filter/http-exception/http-exception.filter';
+import { TransformInterceptor } from '@/common/interceptor/transform/transform.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { LoggerService } from '@/logger/logger.service';
@@ -17,8 +17,8 @@ async function bootstrap() {
 
   // 设置swagger文档
   const config = new DocumentBuilder()
-    .setTitle('管理后台')
-    .setDescription('管理后台接口文档')
+    .setTitle('NestJS 管理后台')
+    .setDescription('NestJS 管理后台接口文档')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

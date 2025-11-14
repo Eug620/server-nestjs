@@ -1,6 +1,6 @@
 import { Injectable, HttpException } from '@nestjs/common';
-import { CreateUserDto } from '@/user/dto/create-user.dto';
-import { UpdateUserDto } from '@/user/dto/update-user.dto';
+import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
+import { UpdateUserDto } from '@/modules/user/dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 
 
-import { UserEntity } from '@/user/entities/user.entity';
+import { UserEntity } from '@/modules/user/entities/user.entity';
 
 export interface UserRo {
   list: UserEntity[];

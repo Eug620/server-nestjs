@@ -8,7 +8,7 @@ export class LoggerService {
 
   constructor() {
     this.logger = createLogger({
-      level: 'info', // 默认日志级别
+      level: 'error', // 默认日志级别
       format: format.combine(
         format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), // 设置时间戳格式
         format.printf(({ timestamp, level, message, ...metadata }) => {

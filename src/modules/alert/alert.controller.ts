@@ -21,7 +21,7 @@ export class AlertController {
             sender: '系统通知',
             message: dto.message,
         };
-        this.socketGateway.wss.emit('msg2client', alertMessage);
+        this.socketGateway.wss.emit('alert', alertMessage);
         return {
             code: 200,
             msg: 'Alert sent successfully',
