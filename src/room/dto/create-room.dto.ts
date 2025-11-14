@@ -5,6 +5,4 @@ export class CreateRoomDto {
     // 房间描述
     description: string;
 
-    // 创建人
-    creator: string;
 }

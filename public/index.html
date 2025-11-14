@@ -11,8 +11,8 @@
     <div class="">Hello World</div>
     <script src="./socket.io.min.js"></script>
     <script>
-        const username = 'zs'
-        const password = '123456'
+        const username = 'admin'
+        const password = 'admin'
         const email = 'zs@example.com'
         // 1. 注册用户
         fetch('http://localhost:3000/user', {
@@ -29,6 +29,14 @@
             return res.json()
         }).then(({ data }) => {
             console.log('注册用户:', data)
+            login()
+
+        }).catch(err => {
+            console.error('Error:', err);
+            login()
+        })
+
+        function login() {
             // 2. 登录用户
             fetch('http://localhost:3000/user/login', {
                 method: 'POST',
@@ -99,9 +107,83 @@
                     //         console.log('更新用户:', data)
                     //     })
 
-
+                    room(token)
                 })
-        })
+        }
+
+        function room(token) {
+            // 8. 创建房间
+            // fetch('http://localhost:3000/room', {
+            //     method: 'post',
+            //     headers: {
+            //         'Authorization': token,
+            //         'Content-Type': 'application/json',
+
+            //     },
+            //     body: JSON.stringify({
+            //         name: 'room_'+ Date.now(),
+            //         description: '这是一个房间',
+            //     }),
+            // })
+            //     .then(res => res.json())
+            //     .then(({ data }) => {
+            //         console.log(data)
+            //     })
+
+            // 9. 获取房间列表
+            fetch('http://localhost:3000/room', {
+                method: 'GET',
+                headers: {
+                    'Authorization': token,
+                },
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+
+                    // 10. 获取房间详情
+                    fetch(`http://localhost:3000/room/${data.list[data.list.length - 1].id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': token,
+                        },
+                    })
+                        .then(res => res.json())
+                        .then(({ data }) => {
+                            console.log(data)
+                        })
+
+
+                    // 11. 更新房间
+                    // fetch(`http://localhost:3000/room/${data.list[data.list.length - 1].id}`, {
+                    //     method: 'PATCH',
+                    //     headers: {
+                    //         'Authorization': token,
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         name: 'room_edit_'+ Date.now(),
+                    //         description: '这是一个房间',
+                    //     }),
+                    // })
+                    //     .then(res => res.json())
+                    //     .then(({ data }) => {
+                    //         console.log(data)
+                    //     })
+
+                    // 12. 删除房间
+                    // fetch(`http://localhost:3000/room/${data.list[data.list.length - 1].id}`, {
+                    //     method: 'DELETE',
+                    //     headers: {
+                    //         'Authorization': token,
+                    //     },
+                    // })
+                    //     .then(res => res.json())
+                    //     .then(({ data }) => {
+                    //         console.log(data)
+                    //     })
+                })
+        }
 
     </script>
 </body>
