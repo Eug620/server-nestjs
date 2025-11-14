@@ -11,6 +11,7 @@ import { UserEntity } from '@/modules/user/entities/user.entity';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { RoomModule } from '@/modules/room/room.module';
 import { RoomEntity } from '@/modules/room/entities/room.entity';
+import { CaptchaModule } from '@/modules/captcha/captcha.module';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import envConfig from '../config/env';
     UserModule,
     AuthModule,
     RoomModule,
+    CaptchaModule,
   ],
   controllers: [AlertController],
   providers: [LoggerService, SocketGateway],

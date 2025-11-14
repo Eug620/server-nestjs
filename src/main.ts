@@ -5,6 +5,7 @@ import { TransformInterceptor } from '@/common/interceptor/transform/transform.i
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { LoggerService } from '@/logger/logger.service';
+import session from 'express-session';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -28,6 +29,20 @@ async function bootstrap() {
 
   // 支持静态资源
   app.useStaticAssets('public', { prefix: '/static' });
+
+  // 配置 session
+  app.use(
+    session({
+      secret: 'your-secret-key',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: false, // 如果是 HTTPS 连接，设置为 true
+        httpOnly: true,
+        maxAge: 60000, // 会话过期时间（毫秒）
+      },
+    }),
+  );
 
   // 启用 CORS（允许所有域）
   // app.enableCors();
