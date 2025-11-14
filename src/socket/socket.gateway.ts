@@ -1,13 +1,3 @@
-/*
- * @Author       : eug yyh3531@163.com
- * @Date         : 2025-11-01 13:38:38
- * @LastEditors  : eug yyh3531@163.com
- * @LastEditTime : 2025-11-02 12:46:18
- * @FilePath     : /server-nestjs/src/socket/socket.gateway.ts
- * @Description  : filename
- * 
- * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
- */
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import type { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Logger, UseGuards } from '@nestjs/common';
