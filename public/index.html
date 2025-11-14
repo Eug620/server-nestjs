@@ -78,6 +78,7 @@
                         console.log('WebSocket connected');
                         // 6. 发送消息到服务器
                         socket.emit('message', { message: 'Hello, WebSocket!' });
+                        socket.emit('init');
                     });
                     socket.on('message', (event) => {
                         console.log('Message from server:', event);
@@ -87,6 +88,10 @@
                     });
                     socket.on('disconnect', () => {
                         console.log('WebSocket closed');
+                    });
+                    socket.on('exception', (error) => {
+                        console.log('WebSocket exception:', error);
+                        socket.disconnect();
                     });
 
                     // 7. 更新用户信息

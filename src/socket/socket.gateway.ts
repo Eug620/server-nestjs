@@ -27,6 +27,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @WebSocketServer() wss: Server;
 
   private logger: Logger = new Logger('SocketGateway');
+  private users = new Map<string, Socket>();
 
   afterInit(server: Server) {
     this.logger.log('WebSocket Gateway Initialized');
@@ -34,14 +35,15 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
+    // 如果用户存在，从所有房间中移除用户
+    if (client.data.user) {
+      this.users.delete(client.data.user.id);
+    }
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    const user = client.data.user;
-    console.log(`用户id: ${user}`,);
-    console.log(`用户username: ${user}`,);
+  handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
-    client.emit('message', { message: 'Welcome to the WebSocket server!' });
+    client.emit('message', { message: `Welcome to the WebSocket server!`, timestamp: Date.now() });
   }
 
   /**   
@@ -60,10 +62,17 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
    * @param client 
    * @param message 
    */
-  @SubscribeMessage('msgToUser')
-  handleMessageUser(client: Socket, message: { sender: string, room: string, message: string }): void {
+  @SubscribeMessage('user')
+  handleMessageUser(client: Socket, message: { sender: string, message: string }): void {
     // 需要记录用户id和对应的client映射关系才能实现
-    // Map<userId -> client>
+    const receiver = this.users.get(message.sender);
+    if (receiver) {
+      receiver.emit('user', { message, sender: client.data.user.id, receiver: message.sender, timestamp: Date.now() }); // 发送给指定用户
+    } else {
+      this.logger.error(`User ${message.sender} not found`);
+    }
+    // TODO 记录用户之间的消息记录 - 数据库
+    // { message, sender: client.data.user.id, receiver: message.sender, timestamp: Date.now() }
   }
 
 
@@ -72,11 +81,11 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
    * @param client 
    * @param message 
    */
-  @SubscribeMessage('msgToRoom')
-  handleMessageRoom(client: Socket, message: { sender: string, room: string, message: string }): void {
-    // client.to(message.room).emit('msg2client', message); // 发送给除了自己之外的房间内成员
-    console.log('msgToRoom-当前用户信息:',client.data.user)
-    this.wss.to(message.room).emit('msg2client', message); // 发送给房间内所有成员包括自己
+  @SubscribeMessage('room')
+  handleMessageRoom(client: Socket, message: { room: string, message: string }): void {
+    // client.to(message.room).emit('msg2client', message); // 发送给除了自己之外的房间内成员 - 群公告
+    console.log('msgToRoom-当前用户信息:', client.data.user)
+    this.wss.to(message.room).emit('room', { message, room: message.room, sender: client.data.user.id, timestamp: Date.now() }); // 发送给房间内所有成员包括自己
   }
 
   /**
@@ -100,5 +109,18 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   handleLeave(client: Socket, room: string): void {
     client.leave(room);
     client.emit('leave', { room, message: `You have left room: ${room}` });
+  }
+
+
+  /**
+ * 初始化用户
+ * @param client 
+ * @param room 
+ */
+  @SubscribeMessage('init')
+  handleInit(client: Socket): void {
+    this.logger.log(`init 当前用户信息: id: ${client.data.user.id}, username: ${client.data.user.username}`);
+    // 记录用户id和对应的client映射关系
+    this.users.set(client.data.user.id, client);
   }
 }
