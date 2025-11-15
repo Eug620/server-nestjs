@@ -1,5 +1,5 @@
 import { Controller, Get, Res, Session } from '@nestjs/common';
-import { CaptchaService } from './captcha.service';
+import { CaptchaService } from '@/modules/captcha/captcha.service';
 import type { Response } from 'express';
 
 

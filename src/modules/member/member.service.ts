@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common';
-import { CreateMemberDto } from './dto/create-member.dto';
-import { SearchMemberDto } from './dto/search-member.dto';
+import { CreateMemberDto } from '@/modules/member/dto/create-member.dto';
+import { SearchMemberDto } from '@/modules/member/dto/search-member.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MemberEntity } from './entities/member.entity';
+import { MemberEntity } from '@/modules/member/entities/member.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

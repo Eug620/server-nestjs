@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, Req } from '@nestjs/common';
-import { MemberService } from './member.service';
-import { CreateMemberDto } from './dto/create-member.dto';
-import { SearchMemberDto } from './dto/search-member.dto';
+import { MemberService } from '@/modules/member/member.service';
+import { CreateMemberDto } from '@/modules/member/dto/create-member.dto';
+import { SearchMemberDto } from '@/modules/member/dto/search-member.dto';
 @Controller('member')
 export class MemberController {
   constructor(private readonly memberService: MemberService) { }

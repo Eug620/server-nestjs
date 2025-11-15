@@ -1,4 +1,4 @@
-import { UserEntity } from './entities/user.entity';
+import { UserEntity } from '@/modules/user/entities/user.entity';
 
 export interface UserRo {
   list: UserEntity[];
