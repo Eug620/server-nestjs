@@ -31,6 +31,10 @@ export class RoomService {
       take: pageSize, // 每页显示的记录数
       where: {
         creator: user.id,
+        isDeleted: false,
+        user_info: {
+          isDeleted: false,
+        }
       },
       order: {
         createdAt: 'ASC',
@@ -69,6 +73,12 @@ export class RoomService {
       order: {
         createdAt: 'ASC',
       },
+      where: {
+        isDeleted: false,
+        user_info: {
+          isDeleted: false,
+        }
+      },
       select: {
         id: true,
         name: true,
@@ -97,7 +107,7 @@ export class RoomService {
 
   async findOne(id: string) {
     const room = await this.roomRepository.findOne({
-      where: { id },
+      where: { id, isDeleted: false, user_info: { isDeleted: false } },
       select: {
         id: true,
         name: true,
@@ -122,7 +132,7 @@ export class RoomService {
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {
-    const room = await this.roomRepository.findOne({ where: { id } });
+    const room = await this.roomRepository.findOne({ where: { id, isDeleted: false, user_info: { isDeleted: false } } });
     if (!room) {
       throw new HttpException(`id为${id}的房间不存在`, 401);
     }
@@ -135,11 +145,12 @@ export class RoomService {
   }
 
   async remove(id: string) {
-    const room = await this.roomRepository.findOne({ where: { id } });
+    const room = await this.roomRepository.findOne({ where: { id, isDeleted: false, user_info: { isDeleted: false } } });
     if (!room) {
       throw new HttpException(`id为${id}的房间不存在`, 401);
     }
-    await this.roomRepository.remove(room);
+    room.isDeleted = true;
+    await this.roomRepository.save(room);
     return '删除房间成功'
   }
 }

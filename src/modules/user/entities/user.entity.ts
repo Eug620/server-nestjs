@@ -22,6 +22,9 @@ export class UserEntity {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
+    @Column({ type: 'boolean', default: false })
+    isDeleted: boolean;
+
     // 一个用户可以创建多个房间
     @OneToMany(() => RoomEntity, (room) => room.user_info)
     room: RoomEntity[];

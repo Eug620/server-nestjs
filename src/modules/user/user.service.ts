@@ -37,10 +37,16 @@ export class UserService {
   ) { }
 
   async findeByWhere(where: object, errMsg: string) {
-    const queryUser = await this.userRepository.findOne({ where });
+    try {
+    const queryUser = await this.userRepository.findOne({ where: { ...where } });
     if (queryUser) {
       throw new HttpException(errMsg, 401);
     }
+    }catch (error) {
+      console.log(error.message);
+      throw new HttpException(error.message, 401);
+    }
+
   }
 
   async create(createUserDto: CreateUserDto): Promise<string> {
@@ -59,6 +65,7 @@ export class UserService {
       skip: (page - 1) * pageSize, // 分页偏移量
       take: pageSize, // 每页显示的记录数
       order: { createdAt: 'DESC' },
+      where: { isDeleted: false },
       select: ['username', 'id', 'email', 'createdAt', 'updatedAt']
     });
 
@@ -71,7 +78,7 @@ export class UserService {
   }
 
   async findOne(id: string): Promise<UserInfo> {
-    const userInfo = await this.userRepository.findOne({ where: { id }, select: ['username', 'id', 'email', 'createdAt', 'updatedAt'] })
+    const userInfo = await this.userRepository.findOne({ where: { id, isDeleted: false }, select: ['username', 'id', 'email', 'createdAt', 'updatedAt'] })
     if (!userInfo) {
       throw new HttpException('该用户不存在', 401);
     }
@@ -79,7 +86,7 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, user: UserInfo) {
-    const existUser = await this.userRepository.findOne({ where: { id } });
+    const existUser = await this.userRepository.findOne({ where: { id, isDeleted: false } });
     if (!existUser) {
       throw new HttpException(`id为${id}的用户不存在`, 401);
     }
@@ -99,11 +106,12 @@ export class UserService {
   }
 
   async remove(id: string) {
-    const existUser = await this.userRepository.findOne({ where: { id } });
+    const existUser = await this.userRepository.findOne({ where: { id, isDeleted: false } });
     if (!existUser) {
       throw new HttpException(`id为${id}的用户不存在`, 401);
     }
-    await this.userRepository.remove(existUser);
+    existUser.isDeleted = true;
+    await this.userRepository.save(existUser);
     return '删除用户成功'
   }
 
@@ -115,7 +123,7 @@ export class UserService {
    */
   async login(username: string, password: string) {
     // 1. 查询用户是否存在
-    const user = await this.userRepository.findOne({ where: { username } });
+    const user = await this.userRepository.findOne({ where: { username, isDeleted: false } });
     if (!user) {
       throw new HttpException('用户名或密码错误', 401);
     }
@@ -134,6 +142,7 @@ export class UserService {
       token_type: 'Bearer',
       expires_in: this.configService.get('JWT_EXPIRES_IN'), // 与 JWT 配置的过期时间一致（秒）
       password: undefined,
+      isDeleted: undefined,
     });
 
   }
