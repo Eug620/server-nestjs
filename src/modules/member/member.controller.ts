@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { MemberService } from '@/modules/member/member.service';
 import { CreateMemberDto } from '@/modules/member/dto/create-member.dto';
 import { SearchMemberDto } from '@/modules/member/dto/search-member.dto';
+import { JwtAuthGuard } from '@/modules/auth/auth.guard';
+
 @Controller('member')
+@UseGuards(JwtAuthGuard)
 export class MemberController {
   constructor(private readonly memberService: MemberService) { }
 
