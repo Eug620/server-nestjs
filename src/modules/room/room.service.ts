@@ -4,14 +4,9 @@ import { UpdateRoomDto } from '@/modules/room/dto/update-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '@/modules/room/entities/room.entity';
-import { UserInfo } from '@/modules/user/user.service';
+import { UserInfo } from '@/modules/user/user.interface';
+import { RoomRo } from '@/modules/room/room.interface';
 
-export interface RoomRo {
-  list: RoomEntity[];
-  count: number;
-  totalPages: number;
-  currentPage: number;
-}
 
 @Injectable()
 export class RoomService {

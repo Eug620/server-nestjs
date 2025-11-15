@@ -1,6 +1,8 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 import { UserEntity } from '@/modules/user/entities/user.entity'
-
+/**
+ * 房间实体
+ */
 @Entity('room')
 export class RoomEntity {
     @PrimaryGeneratedColumn('uuid') // 自动生成uuid

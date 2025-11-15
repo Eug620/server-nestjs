@@ -2,6 +2,9 @@
 import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 
 import { RoomEntity } from '@/modules/room/entities/room.entity';
+/**
+ * 用户实体
+ */
 @Entity('user')
 export class UserEntity {
     @PrimaryGeneratedColumn('uuid') // 自动生成uuid

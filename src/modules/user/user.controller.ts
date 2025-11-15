@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '@/modules/auth/auth.guard';
 import { UserService } from '@/modules/user/user.service';
 import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/user/dto/update-user.dto';
-import { UserRo } from '@/modules/user/user.service';
+import { UserRo } from '@/modules/user/user.interface';
 @Controller('user')
 // @UseGuards(JwtAuthGuard) // 整个控制器的接口都需要鉴权
 export class UserController {

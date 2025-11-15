@@ -6,25 +6,12 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { UserRo, UserInfo } from '@/modules/user/user.interface';
 
 
 import { UserEntity } from '@/modules/user/entities/user.entity';
 
-export interface UserRo {
-  list: UserEntity[];
-  count: number;
-  totalPages: number;
-  currentPage: number;
-}
 
-export interface UserInfo {
-  id: string
-  username: string
-  password: string
-  email: string
-  createdAt: Date
-  updatedAt: Date
-}
 
 @Injectable()
 export class UserService {
