@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="">房间申请列表</div>
+    <div class="apply-room-list"></div>
+    <div class="">好友申请列表</div>
+    <div class="apply-friend-list"></div>
+    <script>
+        const username = 'eug'
+        const password = 'eug'
+        const email = 'admin@example.com'
+        function login() {
+            fetch('http://localhost:3000/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            }).then(res => res.json()).then(({ data }) => {
+                console.log(data)
+                const token = `${data.token_type} ${data.access_token}`
+                // 3. 存储 Token（例如，在 localStorage 中）
+                localStorage.setItem('access_token', token);
+                getApplyRoomList()
+
+                getApplyFriendList()
+
+            })
+        }
+        login()
+
+
+        // 查询房间申请列表
+        function getApplyRoomList() {
+            // fetch('http://localhost:3000/apply/room?roomId=' + 'd2cdb350-3988-439f-af85-5b825610a46c', {
+            fetch('http://localhost:3000/apply/room', {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+            }).then(res => res.json()).then(({ data }) => {
+                console.log(data)
+                // 4. 渲染房间申请列表到页面
+                const applyRoomList = document.querySelector('.apply-room-list')
+                applyRoomList.innerHTML = data.map(item => `
+                    <div class="apply-room-item" style="margin-bottom: 10px; border: 1px solid #ccc; padding: 10px;">
+                        <div class="apply-friend-item-info">
+                            <div class="apply-friend-item-info-name">${item.user_info.username}</div>
+                            <div class="apply-friend-item-info-desc">${item.user_info.email}</div>
+                        </div>
+                        <div class="apply-room-item-info">
+                            <div class="apply-room-item-info-name">${item.room_info.name}</div>
+                            <div class="apply-room-item-info-desc">${item.room_info.description}</div>
+                        </div>
+                        <div class="apply-room-item-actions">
+                            <button class="apply-room-item-actions-accept" data-room-id="${item.id}">同意</button>
+                            <button class="apply-room-item-actions-reject" data-room-id="${item.id}">拒绝</button>
+                        </div>
+                    </div>
+                `).join('')
+                // 5. 为同意和拒绝按钮添加点击事件
+                applyRoomList.querySelectorAll('.apply-room-item-actions-accept').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const roomId = e.target.dataset.roomId
+                        acceptApplyRoom(roomId)
+                    })
+                })
+                applyRoomList.querySelectorAll('.apply-room-item-actions-reject').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const roomId = e.target.dataset.roomId
+                        rejectApplyRoom(roomId)
+                    })
+                })
+
+                // 6. 处理同意房间申请
+                function acceptApplyRoom(roomId) {
+                    fetch(`http://localhost:3000/apply/${roomId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('access_token'),
+                        },
+                        body: JSON.stringify({
+                            status: true,
+                        }),
+                    }).then(res => res.json()).then(({ data }) => {
+                        console.log(data)
+                        // 6. 刷新房间申请列表
+                        getApplyRoomList()
+                    })
+                }
+                // 7. 处理拒绝房间申请
+                function rejectApplyRoom(roomId) {
+                    fetch(`http://localhost:3000/apply/${roomId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('access_token'),
+                        },
+                        body: JSON.stringify({
+                            status: false,
+                        }),
+                    }).then(res => res.json()).then(({ data }) => {
+                        console.log(data)
+                        // 6. 刷新房间申请列表
+                        getApplyRoomList()
+                    })
+                }
+            })
+        }
+        // 查询好友申请列表
+        function getApplyFriendList() {
+            fetch('http://localhost:3000/apply/mine', {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+            }).then(res => res.json()).then(({ data }) => {
+                console.log(data)
+                // 4. 渲染好友申请列表到页面
+                const applyFriendList = document.querySelector('.apply-friend-list')
+                applyFriendList.innerHTML = data.map(item => `
+                    <div class="apply-friend-item"  style="margin-bottom: 10px; border: 1px solid #ccc; padding: 10px;">
+                        <div class="apply-friend-item-info">
+                            <div class="apply-friend-item-info-name">${item.user_info.username}</div>
+                            <div class="apply-friend-item-info-desc">${item.user_info.email}</div>
+                        </div>
+                        <div class="apply-friend-item-info">
+                            <div class="apply-friend-item-info-name">${item.apply_user_info.username}</div>
+                            <div class="apply-friend-item-info-desc">${item.apply_user_info.email}</div>
+                        </div>
+                        <div class="apply-friend-item-actions">
+                            <button class="apply-friend-item-actions-accept" data-friend-id="${item.id}">同意</button>
+                            <button class="apply-friend-item-actions-reject" data-friend-id="${item.id}">拒绝</button>
+                        </div>
+                    </div>
+                `).join('')
+                // 5. 为同意和拒绝按钮添加点击事件
+                applyFriendList.querySelectorAll('.apply-friend-item-actions-accept').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = e.target.dataset.friendId
+                        acceptApplyFriend(friendId)
+                    })
+                })
+                applyFriendList.querySelectorAll('.apply-friend-item-actions-reject').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const friendId = e.target.dataset.friendId
+                        rejectApplyFriend(friendId)
+                    })
+                })
+                // 6. 处理同意好友申请
+                function acceptApplyFriend(friendId) {
+                    fetch(`http://localhost:3000/apply/${friendId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('access_token'),
+                        },
+                        body: JSON.stringify({
+                            status: true,
+                        }),
+                    }).then(res => res.json()).then(({ data }) => {
+                        console.log(data)
+                        // 6. 刷新好友申请列表
+                        getApplyFriendList()
+                    })
+                }
+                // 7. 处理拒绝好友申请
+                function rejectApplyFriend(friendId) {
+                    fetch(`http://localhost:3000/apply/${friendId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('access_token'),
+                        },
+                        body: JSON.stringify({
+                            status: false,
+                        }),
+                    }).then(res => res.json()).then(({ data }) => {
+                        console.log(data)
+                        // 6. 刷新好友申请列表
+
+                        getApplyFriendList()
+                    })
+                }
+
+            })
+        }
+    </script>
+</body>
+
+</html>
