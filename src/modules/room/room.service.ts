@@ -6,21 +6,26 @@ import { Repository } from 'typeorm';
 import { RoomEntity } from '@/modules/room/entities/room.entity';
 import { UserInfo } from '@/modules/user/user.interface';
 import { RoomRo } from '@/modules/room/room.interface';
-
+import { MemberEntity } from '@/modules/member/entities/member.entity';
 
 @Injectable()
 export class RoomService {
   @InjectRepository(RoomEntity)
   private readonly roomRepository: Repository<RoomEntity>;
+  private readonly memberRepository: Repository<MemberEntity>;
 
   async create(createRoomDto: CreateRoomDto, user: UserInfo): Promise<string> {
-    await this.roomRepository.save(Object.assign(createRoomDto, {
+    const room = await this.roomRepository.save(Object.assign(createRoomDto, {
       creator: user.id,
+    }));
+    await this.memberRepository.save(Object.assign({
+      roomId: room.id,
+      userId: user.id,
     }));
     return '创建房间成功';
   }
-  async findMineAll(page: number = 1, pageSize: number = 10,user: UserInfo): Promise<RoomRo>{
-        // 从数据库查询所有房间
+  async findMineAll(page: number = 1, pageSize: number = 10, user: UserInfo): Promise<RoomRo> {
+    // 从数据库查询所有房间
     const [posts, totalCount] = await this.roomRepository.findAndCount({
       skip: (page - 1) * pageSize, // 分页偏移量
       take: pageSize, // 每页显示的记录数
@@ -146,6 +151,8 @@ export class RoomService {
     }
     room.isDeleted = true;
     await this.roomRepository.save(room);
+    // 标记所有房间成员为已删除
+    await this.memberRepository.update({ room_id: room.id }, { isDeleted: true });
     return '删除房间成功'
   }
 }

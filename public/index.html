@@ -9,12 +9,12 @@
 
 <body>
     <div class="">Hello World</div>
-    <img id="captcha-img" src="http://localhost:3000/captcha" alt="验证码">
+    <img id="captcha-img"  src="http://localhost:3000/captcha" alt="验证码">
     <script src="./socket.io.min.js"></script>
     <script>
-        const username = 'admin' + Date.now()
+        const username = 'admin'
         const password = 'admin'
-        const email = 'zs@example.com'+ Date.now()
+        const email = 'zs@example.com'
         // 1. 注册用户
         fetch('http://localhost:3000/user', {
             method: 'POST',
@@ -221,23 +221,22 @@
         }
 
 
-        setInterval(() => {
-            fetch(`http://localhost:3000/alert`, {
-                method: 'post',
-                headers: {
-                    // 'Authorization': token,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: '这是一条通知',
-                }),
-            })
-                .then(res => res.json())
-                .then(({ data }) => {
-                    console.log(data)
-                })
-        }, 3000);
-
+        // setInterval(() => {
+        //     fetch(`http://localhost:3000/alert`, {
+        //         method: 'post',
+        //         headers: {
+        //             // 'Authorization': token,
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             message: '这是一条通知',
+        //         }),
+        //     })
+        //         .then(res => res.json())
+        //         .then(({ data }) => {
+        //             console.log(data)
+        //         })
+        // }, 3000);
     </script>
 </body>
 
