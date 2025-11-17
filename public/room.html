@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="text" id="name">
+    <input type="text" id="description">
+
+    <button id="create">创建房间</button>
+    <script>
+        const username = 'eug'
+        const password = 'eug'
+        const email = 'eug@example.com'
+        function login() {
+            // 2. 登录用户
+            fetch('http://localhost:3000/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                    const token = `${data.token_type} ${data.access_token}`
+                    // 3. 存储 Token（例如，在 localStorage 中）
+                    localStorage.setItem('access_token', token);
+
+                })
+        }
+
+        login()
+
+        document.getElementById('create').addEventListener('click', () => {
+            const name = document.getElementById('name').value
+            const description = document.getElementById('description').value
+            // 4. 创建房间
+            fetch('http://localhost:3000/room', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+                body: JSON.stringify({
+                    name,
+                    description,
+                }),
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                })
+        })
+
+    </script>
+</body>
+
+</html>

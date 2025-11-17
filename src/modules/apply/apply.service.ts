@@ -22,23 +22,44 @@ export class ApplyService {
 
   findRoomAll(roomId: string) {
     return this.applyRepository.find({
-      where: { room_id: roomId }, 
+      where: { room_id: roomId, isDeleted: false }, 
       order: { createdAt: 'DESC' },
     });
   }
 
   findApplyAll(userId: string) {
     return this.applyRepository.find({
-      where: { apply_user_id: userId }, 
+      where: { apply_user_id: userId, isDeleted: false }, 
       order: { createdAt: 'DESC' },
     });
   }
 
-  update(id: string, updateApplyDto: UpdateApplyDto) {
+  async update(id: string, updateApplyDto: UpdateApplyDto) {
+    // 检查是否存在
+    const apply = await this.applyRepository.findOne({
+      where: { id, isDeleted: false },
+
+    });
+    if (!apply) {
+      throw new Error('申请不存在');
+    }
+    if (apply.handle_status) {
+      throw new Error('已处理，不能再操作');
+    }
     return this.applyRepository.update(id, updateApplyDto);
   }
 
-  remove(id: string) {
-    return this.applyRepository.delete(id);
+  async remove(id: string) {
+    // 检查是否存在
+    const apply = await this.applyRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+    if (!apply) {
+      throw new Error('申请不存在');
+    }
+    if (apply.handle_status) {
+      throw new Error('已处理，不能再操作');
+    }
+    return this.applyRepository.save(Object.assign(apply, { isDeleted: true }));
   }
 }

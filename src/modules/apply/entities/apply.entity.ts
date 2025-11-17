@@ -46,4 +46,16 @@ export class ApplyEntity {
      */
     @Column({ type: 'boolean', default: false })
     handle_status: boolean;
+
+    /**
+     * 更新时间
+     */
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+    updatedAt: Date;
+
+    /**
+     * 删除状态
+     */
+    @Column({ type: 'boolean', default: false })
+    isDeleted: boolean;
 }

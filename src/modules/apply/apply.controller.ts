@@ -34,7 +34,10 @@ export class ApplyController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateApplyDto: UpdateApplyDto) {
-    return this.applyService.update(id, updateApplyDto);
+    return this.applyService.update(id, {
+      status: updateApplyDto.status,
+      handle_status: true,
+    });
   }
 
   @Delete(':id')

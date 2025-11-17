@@ -12,16 +12,17 @@ import { MemberEntity } from '@/modules/member/entities/member.entity';
 export class RoomService {
   @InjectRepository(RoomEntity)
   private readonly roomRepository: Repository<RoomEntity>;
+  @InjectRepository(MemberEntity)
   private readonly memberRepository: Repository<MemberEntity>;
 
   async create(createRoomDto: CreateRoomDto, user: UserInfo): Promise<string> {
     const room = await this.roomRepository.save(Object.assign(createRoomDto, {
       creator: user.id,
     }));
-    await this.memberRepository.save(Object.assign({
-      roomId: room.id,
-      userId: user.id,
-    }));
+    await this.memberRepository.save({
+      room_id: room.id,
+      user_id: user.id,
+    });
     return '创建房间成功';
   }
   async findMineAll(page: number = 1, pageSize: number = 10, user: UserInfo): Promise<RoomRo> {
