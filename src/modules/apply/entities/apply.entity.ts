@@ -14,19 +14,19 @@ export class ApplyEntity {
     /**
      * 用户ID
      */
-    @Column({ type: 'varchar', length: 100 })
+    @Column({ type: 'varchar', length: 100, default: '' })
     user_id: string;
 
     /**
      * 房间ID
      */
-    @Column({ type: 'varchar', length: 100 })
+    @Column({ type: 'varchar', length: 100, default: '' })
     room_id: string;
 
     /**
      * 被申请用户ID
      */
-    @Column({ type: 'varchar', length: 100 })
+    @Column({ type: 'varchar', length: 100, default: '' })
     apply_user_id: string;
 
     /**

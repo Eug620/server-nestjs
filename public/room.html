@@ -12,10 +12,19 @@
     <input type="text" id="description">
 
     <button id="create">创建房间</button>
+
+    <br>
+    房间id<input type="text" id="roomId">
+
+    <button id="join">加入房间</button>
+
     <script>
-        const username = 'eug'
-        const password = 'eug'
-        const email = 'eug@example.com'
+        // const username = 'eug'
+        // const password = 'eug'
+
+        const username = 'admin'
+        const password = 'admin'
+        const email = 'admin@example.com'
         function login() {
             // 2. 登录用户
             fetch('http://localhost:3000/user/login', {
@@ -61,6 +70,61 @@
                 })
         })
 
+
+        function joinRoom() {
+            const roomId = document.getElementById('roomId').value
+            // 5. 加入房间
+            fetch(`http://localhost:3000/apply`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+                body: JSON.stringify({
+                    room_id: document.getElementById('roomId').value,
+                }),
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                })
+        }
+        document.getElementById('join').addEventListener('click', joinRoom)
+
+
+        // 6. 查找房间
+        function findRoomAll() {
+            // 6. 查找房间
+            fetch(`http://localhost:3000/room`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                })
+        }
+        findRoomAll()
+
+        // 7. 我的所有申请
+        function findApplyAll() {
+            // 7. 我的所有申请
+            fetch(`http://localhost:3000/apply`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                })
+        }
+        findApplyAll()
     </script>
 </body>
 

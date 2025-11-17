@@ -9,8 +9,8 @@ import { Repository } from 'typeorm';
 export class ApplyService {
   @InjectRepository(ApplyEntity)
   private applyRepository: Repository<ApplyEntity>
-  create(createApplyDto: CreateApplyDto, userId: string) {
-    return this.applyRepository.save(Object.assign(createApplyDto, { userId }));
+  create(createApplyDto: CreateApplyDto, user_id: string) {
+    return this.applyRepository.save(Object.assign(createApplyDto, { user_id }));
   }
 
   findAll(userId: string) {
