@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { UserEntity } from '@/modules/user/entities/user.entity'
+import { ApplyEntity } from '@/modules/apply/entities/apply.entity'
 /**
  * 房间实体
  */

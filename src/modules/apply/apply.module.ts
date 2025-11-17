@@ -3,9 +3,11 @@ import { ApplyService } from '@/modules/apply/apply.service';
 import { ApplyController } from '@/modules/apply/apply.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplyEntity } from '@/modules/apply/entities/apply.entity';
+import { RoomEntity } from '@/modules/room/entities/room.entity';
+import { UserEntity } from '@/modules/user/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ApplyEntity])], // 关联数据库
+  imports: [TypeOrmModule.forFeature([ApplyEntity, RoomEntity, UserEntity])], // 关联数据库
   controllers: [ApplyController],
   providers: [ApplyService],
 })

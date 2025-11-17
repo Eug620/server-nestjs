@@ -1,5 +1,5 @@
 
-import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, PrimaryColumn, OneToOne, JoinColumn, OneToMany, ManyToOne } from 'typeorm';
 
 import { RoomEntity } from '@/modules/room/entities/room.entity';
 /**

@@ -8,8 +8,11 @@
 </head>
 
 <body>
-    <input type="text" id="name">
-    <input type="text" id="description">
+    房间名称：<input type="text" id="name">
+    <br>
+
+    房间描述：<input type="text" id="description">
+    <br>
 
     <button id="create">创建房间</button>
 
@@ -17,6 +20,18 @@
     房间id<input type="text" id="roomId">
 
     <button id="join">加入房间</button>
+    <br>
+    用户id<input type="text" id="applyUserId">
+
+    <button id="apply">申请好友</button>
+
+    <div>
+        <div class="">
+            申请列表
+            <button id="applyList">刷新</button>
+        </div>
+        <div class="apply-list"></div>
+    </div>
 
     <script>
         // const username = 'eug'
@@ -122,9 +137,44 @@
                 .then(res => res.json())
                 .then(({ data }) => {
                     console.log(data)
+                    const applyList = document.querySelector('.apply-list')
+                    applyList.innerHTML = ''
+                    data.forEach(item => {
+                        applyList.innerHTML += `
+                            <div style="margin-bottom: 10px; border: 1px solid #ccc; padding: 5px;">
+                                ${item.user_info.username} <br> 
+                                ${item.createdAt} <br> 
+                                ${item.room_id ? '申请加入房间' : '申请好友'} <br> 
+                                ${item.room_info?.name || item.apply_user_info?.username} <br> 
+                                ${item.status ? '已通过' : '未通过'} <br> 
+                                ${item.handle_status ? '已处理' : '未处理'}
+                            </div>
+                        `
+                    })
                 })
         }
-        findApplyAll()
+        document.getElementById('applyList').addEventListener('click', findApplyAll)
+
+        // 8. 申请好友
+        function applyFriend() {
+            const applyUserId = document.getElementById('applyUserId').value
+            // 8. 申请好友
+            fetch(`http://localhost:3000/apply`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('access_token'),
+                },
+                body: JSON.stringify({
+                    apply_user_id: applyUserId,
+                }),
+            })
+                .then(res => res.json())
+                .then(({ data }) => {
+                    console.log(data)
+                })
+        }
+        document.getElementById('apply').addEventListener('click', applyFriend)
     </script>
 </body>
 
