@@ -8,236 +8,71 @@
 </head>
 
 <body>
+
     <div class="">Hello World</div>
-    <img id="captcha-img"  src="http://localhost:3000/captcha" alt="验证码">
+    <img id="captcha-img" src="http://localhost:3000/captcha" alt="验证码">
+
+    <br>
+
+    <button id="register-btn">注册</button>
+    <br>
+
+    <button id="login-btn">登录</button>
+    <br>
+
+    <button id="get-user-list-btn">获取用户列表</button>
+    <br>
+
+    <button id="get-room-list-btn">获取房间列表</button>
+    <br>
+
+    <button id="get-my-room-list-btn">获取我的房间列表</button>
+    <br>
+
+    <button id="connect-btn">连接</button>
+    <br>
+
+    房间名称：<input type="text" id="name">
+    <br>
+
+    房间描述：<input type="text" id="description">
+    <br>
+
+    <button id="create">创建房间</button>
+
+    <br>
+
+    房间id：<input type="text" id="roomId">
+
+    <button id="join">加入房间</button>
+    <br>
+    用户id<input type="text" id="applyUserId">
+
+    <button id="apply">申请好友</button>
+    <br>
+
+
+    <div>
+        <div class="">
+            申请列表
+            <button id="applyList">刷新</button>
+        </div>
+        <div class="apply-list"></div>
+    </div>
+
+    <div class="">好友列表</div>
+    <button id="friendList">刷新</button>
+
+    <div class="">房间申请列表</div>
+    <button id="applyRoomList">刷新</button>
+    <div class="apply-room-list"></div>
+    <div class="">好友申请列表</div>
+    <button id="applyFriendList">刷新</button>
+    <div class="apply-friend-list"></div>
+
+
     <script src="./socket.io.min.js"></script>
-    <script>
-        const username = 'admin'
-        const password = 'admin'
-        const email = 'zs@example.com'
-        // 1. 注册用户
-        fetch('http://localhost:3000/user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username,
-                password,
-                email,
-            }),
-        }).then(res => {
-            return res.json()
-        }).then(({ data }) => {
-            console.log('注册用户:', data)
-            login()
-
-        }).catch(err => {
-            console.error('Error:', err);
-            login()
-        })
-
-        function login() {
-            // 2. 登录用户
-            fetch('http://localhost:3000/user/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username,
-                    password,
-                }),
-            })
-                .then(res => res.json())
-                .then(({ data }) => {
-
-                    console.log(data)
-                    const token = `${data.token_type} ${data.access_token}`
-                    // 3. 存储 Token（例如，在 localStorage 中）
-                    localStorage.setItem('access_token', token);
-                    // 4. 后续请求添加 Token 到 Authorization 头
-                    fetch('http://localhost:3000/user', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': token,
-                        },
-                    })
-                        .then(res => res.json())
-                        .then(({ data }) => {
-                            console.log(data)
-                        })
-
-                    // 6. 删除用户
-                    // fetch('http://localhost:3000/user/' + data.id, {
-                    //     method: 'DELETE',
-                    //     headers: {
-                    //         'Authorization': token,
-
-                    //     },
-                    // }).then(res => {
-                    //     return res.json()
-                    // }).then(({ data }) => {
-                    //     console.log('删除用户:', data)
-
-                    // }).catch(err => {
-                    //     console.error('删除用户Error:', err);
-                    // })
-
-                    // 5. 连接 WebSocket 服务器
-                    const socket = io('ws://localhost:3001', {
-                        path: '/websocket',
-                        transports: ['websocket'],
-                        auth: {
-                            token,
-                        },
-                    });
-                    socket.on('connect', () => {
-                        console.log('WebSocket connected');
-                        // 6. 发送消息到服务器
-                        socket.emit('message', { message: 'Hello, WebSocket!' });
-                        socket.emit('init');
-                    });
-                    socket.on('message', (event) => {
-                        console.log('Message from server:', event);
-                    });
-                    socket.on('error', (error) => {
-                        console.error('WebSocket error:', error);
-                    });
-                    socket.on('disconnect', () => {
-                        console.log('WebSocket closed');
-                    });
-                    socket.on('exception', (error) => {
-                        console.log('WebSocket exception:', error);
-                        socket.disconnect();
-                    });
-
-                    // 7. 更新用户信息
-                    // fetch('http://localhost:3000/user/8d54fd7c-9c27-498b-88d4-a76bd9cf8e2a', {
-                    //     method: 'PATCH',
-                    //     headers: {
-                    //         'Authorization': token,
-                    //         'Content-Type': 'application/json',
-                    //     },
-                    //     body: JSON.stringify({
-                    //         username: 'wtf1',
-                    //         email: 'wtf1@example.com',
-                    //         password: '123456',
-                    //     }),
-                    // })
-                    //     .then(res => res.json())
-                    //     .then(({ data }) => {
-                    //         console.log('更新用户:', data)
-                    //     })
-
-                    room(token)
-                })
-        }
-
-        function room(token) {
-            // 8. 创建房间
-            // fetch('http://localhost:3000/room', {
-            //     method: 'post',
-            //     headers: {
-            //         'Authorization': token,
-            //         'Content-Type': 'application/json',
-
-            //     },
-            //     body: JSON.stringify({
-            //         name: 'room_'+ Date.now(),
-            //         description: '这是一个房间',
-            //     }),
-            // })
-            //     .then(res => res.json())
-            //     .then(({ data }) => {
-            //         console.log(data)
-            //     })
-
-            // 9. 获取房间列表
-            fetch('http://localhost:3000/room', {
-                method: 'GET',
-                headers: {
-                    'Authorization': token,
-                },
-            })
-                .then(res => res.json())
-                .then(({ data }) => {
-                    console.log(data)
-
-                    // 10. 获取房间详情
-                    fetch(`http://localhost:3000/room/${data.list[data.list.length - 1].id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': token,
-                        },
-                    })
-                        .then(res => res.json())
-                        .then(({ data }) => {
-                            console.log(data)
-                        })
-
-
-                    // 11. 更新房间
-                    // fetch(`http://localhost:3000/room/${data.list[data.list.length - 1].id}`, {
-                    //     method: 'PATCH',
-                    //     headers: {
-                    //         'Authorization': token,
-                    //         'Content-Type': 'application/json',
-                    //     },
-                    //     body: JSON.stringify({
-                    //         name: 'room_edit_'+ Date.now(),
-                    //         description: '这是一个房间',
-                    //     }),
-                    // })
-                    //     .then(res => res.json())
-                    //     .then(({ data }) => {
-                    //         console.log(data)
-                    //     })
-
-                    // 12. 删除房间
-                    // fetch(`http://localhost:3000/room/${data.list[data.list.length - 1].id}`, {
-                    //     method: 'DELETE',
-                    //     headers: {
-                    //         'Authorization': token,
-                    //     },
-                    // })
-                    //     .then(res => res.json())
-                    //     .then(({ data }) => {
-                    //         console.log(data)
-                    //     })
-
-                    // 13. 获取我的房间列表
-                    fetch(`http://localhost:3000/room/mine`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': token,
-                        },
-                    })
-                        .then(res => res.json())
-                        .then(({ data }) => {
-                            console.log(data)
-                        })
-                })
-        }
-
-
-        // setInterval(() => {
-        //     fetch(`http://localhost:3000/alert`, {
-        //         method: 'post',
-        //         headers: {
-        //             // 'Authorization': token,
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({
-        //             message: '这是一条通知',
-        //         }),
-        //     })
-        //         .then(res => res.json())
-        //         .then(({ data }) => {
-        //             console.log(data)
-        //         })
-        // }, 3000);
-    </script>
+    <script src="./index.js"></script>
 </body>
 
 </html>
