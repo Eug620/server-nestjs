@@ -81,7 +81,10 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   handleMessageRoom(client: Socket, message: { room: string, message: string }): void {
     // client.to(message.room).emit('msg2client', message); // 发送给除了自己之外的房间内成员 - 群公告
     console.log('msgToRoom-当前用户信息:', client.data.user)
-    this.wss.to(message.room).emit('room', { message, room: message.room, sender: client.data.user.id, timestamp: Date.now() }); // 发送给房间内所有成员包括自己
+    this.wss.to(message.room).emit('room', Object.assign({}, message, {
+      sender: client.data.user.id, // 发送方id
+      timestamp: Date.now() // 消息发送时间
+    })); // 发送给房间内所有成员包括自己
   }
 
   /**
