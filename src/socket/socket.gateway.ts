@@ -57,7 +57,13 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     // 需要记录用户id和对应的client映射关系才能实现
     const receiver = this.users.get(message.sender);
     if (receiver) {
-      receiver.emit('user', { message, sender: client.data.user.id, receiver: message.sender, timestamp: Date.now() }); // 发送给指定用户
+      const msg = Object.assign({}, message, { 
+        sender: client.data.user.id, // 发送方id
+        receiver: message.sender, // 接收方id
+        timestamp: Date.now() // 消息发送时间
+      });
+      receiver.emit('user', msg); // 发送给指定用户
+      client.emit('sender', msg); // 回显给发送方
     } else {
       this.logger.error(`User ${message.sender} not found`);
     }
