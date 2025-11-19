@@ -21,6 +21,8 @@ export class MemberService {
       where: Object.assign(query, {
         isDeleted: false,
       }),
+      order: { createdAt: 'DESC' },
+      relations: ['room_info', 'user_info'],
       select: {
         id: true,
         room_id: true,
