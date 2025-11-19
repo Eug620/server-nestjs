@@ -21,6 +21,25 @@ export class MemberService {
       where: Object.assign(query, {
         isDeleted: false,
       }),
+      select: {
+        id: true,
+        room_id: true,
+        user_id: true,
+        createdAt: true,
+        user_info: {
+          username: true,
+          email: true,
+          id: true,
+          createdAt: true,
+          updatedAt: true
+        },
+        room_info: {
+          id: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true
+        },
+      },
     });
   }
 
