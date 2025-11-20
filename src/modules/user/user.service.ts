@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/user/dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -62,6 +62,17 @@ export class UserService {
       totalPages: Math.ceil(totalCount / pageSize), // 计算总页数
       currentPage: page, // 当前页
     };
+  }
+
+  async searchAll(username: string) {
+    return this.userRepository.find({
+      where:{
+        username: Like(`%${username}%`),
+        isDeleted: false
+      },
+      order: { createdAt: 'DESC' },
+      select: ['username', 'id', 'email', 'createdAt', 'updatedAt']
+    })
   }
 
   async findOne(id: string): Promise<UserInfo> {

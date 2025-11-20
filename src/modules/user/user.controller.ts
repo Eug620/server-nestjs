@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '@/modules/auth/auth.guard';
 import { UserService } from '@/modules/user/user.service';
 import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/user/dto/update-user.dto';
-import { UserRo } from '@/modules/user/user.interface';
+import { UserRo, UserInfo } from '@/modules/user/user.interface';
 @Controller('user')
 // @UseGuards(JwtAuthGuard) // 整个控制器的接口都需要鉴权
 export class UserController {
@@ -21,6 +21,14 @@ export class UserController {
     console.log(request.user)
     return await this.userService.findAll(query.page, query.pageSize);
   }
+
+  @Get('/search')
+  @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
+  async searchAll(@Query('username') username: string): Promise<UserInfo[]> {
+    // 从req上面获取解析token里面的信息
+    return await this.userService.searchAll(username);
+  }
+
 
   @Get(':id')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权

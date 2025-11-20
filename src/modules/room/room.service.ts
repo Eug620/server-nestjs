@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { CreateRoomDto } from '@/modules/room/dto/create-room.dto';
 import { UpdateRoomDto } from '@/modules/room/dto/update-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { RoomEntity } from '@/modules/room/entities/room.entity';
 import { UserInfo } from '@/modules/user/user.interface';
 import { RoomRo } from '@/modules/room/room.interface';
@@ -33,9 +33,9 @@ export class RoomService {
       where: {
         creator: user.id,
         isDeleted: false,
-        user_info: {
-          isDeleted: false,
-        }
+        // user_info: {
+        //   isDeleted: false,
+        // }
       },
       order: {
         createdAt: 'ASC',
@@ -76,9 +76,9 @@ export class RoomService {
       },
       where: {
         isDeleted: false,
-        user_info: {
-          isDeleted: false,
-        }
+        // user_info: {
+        //   isDeleted: false,
+        // }
       },
       select: {
         id: true,
@@ -106,9 +106,42 @@ export class RoomService {
     };
   }
 
+  async searchAll(name: string) {
+    return this.roomRepository.find({
+      where: {
+        name: Like(`%${name}%`),
+        isDeleted: false,
+      },
+      order: {
+        createdAt: 'ASC',
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        creator: true,
+        user_info: {
+          username: true,
+          email: true,
+          id: true,
+          createdAt: true,
+          updatedAt: true
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+      relations: ['user_info']
+
+    })
+  }
+
   async findOne(id: string) {
     const room = await this.roomRepository.findOne({
-      where: { id, isDeleted: false, user_info: { isDeleted: false } },
+      where: { 
+        id, 
+        isDeleted: false, 
+        // user_info: { isDeleted: false } 
+      },
       select: {
         id: true,
         name: true,
@@ -133,7 +166,13 @@ export class RoomService {
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {
-    const room = await this.roomRepository.findOne({ where: { id, isDeleted: false, user_info: { isDeleted: false } } });
+    const room = await this.roomRepository.findOne({ 
+      where: { 
+        id, 
+        isDeleted: false, 
+        // user_info: { isDeleted: false } 
+      } 
+    });
     if (!room) {
       throw new HttpException(`id为${id}的房间不存在`, 401);
     }
@@ -146,7 +185,13 @@ export class RoomService {
   }
 
   async remove(id: string) {
-    const room = await this.roomRepository.findOne({ where: { id, isDeleted: false, user_info: { isDeleted: false } } });
+    const room = await this.roomRepository.findOne({ 
+      where: { 
+        id, 
+        isDeleted: false, 
+        // user_info: { isDeleted: false } 
+      } 
+    });
     if (!room) {
       throw new HttpException(`id为${id}的房间不存在`, 401);
     }

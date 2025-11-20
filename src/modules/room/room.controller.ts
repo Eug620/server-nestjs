@@ -19,6 +19,11 @@ export class RoomController {
     return this.roomService.findAll(page, pageSize);
   }
 
+  @Get('/search')
+  searchAll(@Query('name') name: string) {
+    return this.roomService.searchAll(name);
+  }
+
   @Get('/mine')
   findMineAll(@Query('page') page: number = 1, @Query('pageSize') pageSize: number = 10, @Req() request) {
     return this.roomService.findMineAll(page, pageSize, request.user);
