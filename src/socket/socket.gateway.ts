@@ -94,8 +94,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
    */
   @SubscribeMessage('join')
   handleJoin(client: Socket, room: string): void {
+    console.log('join-当前用户信息:',room, client.data.user)
     client.join(room);
-    client.emit('join', { room, message: `You have joined room: ${room}` });
+    // this.wss.socketsJoin(room);
+    client.send({ room, message: `You have joined room: ${room}` });
+    // 加入房间
+    // client.emit('join', { room, message: `You have joined room: ${room}` });
   }
 
 
