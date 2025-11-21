@@ -56,17 +56,17 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   handleMessageUser(client: Socket, message: { sender: string, message: string }): void {
     // 需要记录用户id和对应的client映射关系才能实现
     const receiver = this.users.get(message.sender);
+    const msg = Object.assign({}, message, { 
+      sender: client.data.user.id, // 发送方id
+      receiver: message.sender, // 接收方id
+      timestamp: Date.now() // 消息发送时间
+    });
     if (receiver) {
-      const msg = Object.assign({}, message, { 
-        sender: client.data.user.id, // 发送方id
-        receiver: message.sender, // 接收方id
-        timestamp: Date.now() // 消息发送时间
-      });
       receiver.emit('user', msg); // 发送给指定用户
-      client.emit('sender', msg); // 回显给发送方
     } else {
       this.logger.error(`User ${message.sender} not found`);
     }
+    client.emit('sender', msg); // 回显给发送方
     // TODO 记录用户之间的消息记录 - 数据库
     // { message, sender: client.data.user.id, receiver: message.sender, timestamp: Date.now() }
   }
