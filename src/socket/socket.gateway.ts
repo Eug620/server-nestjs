@@ -28,6 +28,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     // 如果用户存在，从所有房间中移除用户
     if (client.data.user) {
       this.users.delete(client.data.user.id);
+      // 获取当前用户所有好友，并通知当前用户已下线
+      // 获取当前用户所有房间，通知当前用户已退出房间
     }
   }
 
@@ -80,7 +82,6 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @SubscribeMessage('room')
   handleMessageRoom(client: Socket, message: { room: string, message: string }): void {
     // client.to(message.room).emit('msg2client', message); // 发送给除了自己之外的房间内成员 - 群公告
-    console.log('msgToRoom-当前用户信息:', client.data.user)
     this.wss.to(message.room).emit('room', Object.assign({}, message, {
       sender: client.data.user.id, // 发送方id
       timestamp: Date.now() // 消息发送时间
@@ -94,7 +95,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
    */
   @SubscribeMessage('join')
   handleJoin(client: Socket, room: string): void {
-    console.log('join-当前用户信息:',room, client.data.user)
+    console.log('[join-room]','用户名：',client.data.user?.username,'房间id：',room)
     client.join(room);
     // this.wss.socketsJoin(room);
     client.send({ room, message: `You have joined room: ${room}` });
@@ -121,9 +122,14 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
  * @param room 
  */
   @SubscribeMessage('init')
-  handleInit(client: Socket): void {
+  async handleInit(client: Socket): Promise<void> {
     this.logger.log(`init 当前用户信息: id: ${client.data.user.id}, username: ${client.data.user.username}`);
     // 记录用户id和对应的client映射关系
     this.users.set(client.data.user.id, client);
+    
+    // 获取当前用户所有好友，并通知当前用户已上线
+
+    // 获取当前用户所有房间，通知当前用户已加入房间
+
   }
 }
