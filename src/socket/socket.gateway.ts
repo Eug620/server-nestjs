@@ -18,6 +18,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   private logger: Logger = new Logger('SocketGateway');
   private users = new Map<string, Socket>();
+  private userRooms = new Map<string, Set<string>>();
 
   afterInit(server: Server) {
     this.logger.log('WebSocket Gateway Initialized');
@@ -29,7 +30,24 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     if (client.data.user) {
       this.users.delete(client.data.user.id);
       // 获取当前用户所有好友，并通知当前用户已下线
+  
       // 获取当前用户所有房间，通知当前用户已退出房间
+      const rooms = this.userRooms.get(client.data.user.id);
+      if (rooms) {
+        rooms.forEach(async room => {
+          client.leave(room);
+          const sockets = await this.wss.in(room).fetchSockets();
+          // 通知房间内所有成员当前用户已加入房间
+          this.wss.to(room).emit('online', {
+            room,
+            users: sockets.map(socket => socket.data.user?.id),
+            timestamp: Date.now() // 消息发送时间
+          }); // 发送给房间内所有成员包括自己
+        });
+
+        // 从用户房间映射中删除用户
+        this.userRooms.delete(client.data.user.id);
+      }
     }
   }
 
@@ -94,11 +112,24 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
    * @param room 
    */
   @SubscribeMessage('join')
-  handleJoin(client: Socket, room: string): void {
+  async handleJoin(client: Socket, room: string): Promise<void> {
     console.log('[join-room]','用户名：',client.data.user?.username,'房间id：',room)
     client.join(room);
+    // 记录用户加入的房间
+    this.userRooms.set(client.data.user.id, (this.userRooms.get(client.data.user.id) || new Set()).add(room));
+    // 获取当前房间所有成员
+    const sockets = await this.wss.in(room).fetchSockets();
     // this.wss.socketsJoin(room);
-    client.send({ room, message: `You have joined room: ${room}` });
+    // client.send({ room, message: `You have joined room: ${room}` });
+
+
+    // 通知房间内所有成员当前用户已加入房间
+    this.wss.to(room).emit('online', {
+      room,
+      users: sockets.map(socket => socket.data.user?.id),
+      timestamp: Date.now() // 消息发送时间
+    }); // 发送给房间内所有成员包括自己
+
     // 加入房间
     // client.emit('join', { room, message: `You have joined room: ${room}` });
   }
