@@ -3,6 +3,9 @@ import type { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websocket
 import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { WsJwtAuthGuard } from '@/socket/socket.guard'
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FriendEntity } from '@/modules/friend/entities/friend.entity';
 @WebSocketGateway(3001, {
   path: '/websocket',
   serveClient: true,
@@ -20,11 +23,16 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   private users = new Map<string, Socket>();
   private userRooms = new Map<string, Set<string>>();
 
+  constructor(
+    @InjectRepository(FriendEntity)
+    private friendRepository: Repository<FriendEntity>,
+  ){}
+
   afterInit(server: Server) {
     this.logger.log('WebSocket Gateway Initialized');
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
     // 如果用户存在，从所有房间中移除用户
     if (client.data.user) {
@@ -49,6 +57,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         this.userRooms.delete(client.data.user.id);
       }
     }
+    // 获取当前用户所有好友，并通知当前用户已下线
+    await this.handleStatus(client.data.user.id, false);
   }
 
   handleConnection(client: Socket) {
@@ -159,8 +169,33 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.users.set(client.data.user.id, client);
     
     // 获取当前用户所有好友，并通知当前用户已上线
-
+    await this.handleStatus(client.data.user.id, true);
     // 获取当前用户所有房间，通知当前用户已加入房间
 
+  }
+
+  /**
+   * 通知所有好友当前用户状态
+   * @param id 用户id
+   */
+  async handleStatus(creator: string, status: boolean) {
+    const friends = await this.friendRepository.find({
+      where: {
+        creator,
+      },
+    });
+    // 通知所有好友当前用户状态
+    friends.forEach(friend => {
+      const receiver = this.users.get(friend.friend_id);
+      if (receiver) {
+        receiver.emit('status', {
+          friend: friend.creator,
+          status,
+          timestamp: Date.now() // 消息发送时间
+        }); // 发送给房间内所有成员包括自己
+      } else {
+        this.logger.error(`User ${friend.friend_id} not found`);
+      }
+    });
   }
 }

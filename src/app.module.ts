@@ -41,6 +41,8 @@ import envConfig from '../config/env';
         // logging: true, // 开启打印生成sql语句
       }),
     }),
+    // 注册 TypeOrmModule 并指定要使用的实体 - socket.gateway使用
+    TypeOrmModule.forFeature([MemberEntity,FriendEntity]),
     PassportModule,
     // 配置 JWT 模块
     JwtModule.registerAsync({
@@ -55,7 +57,6 @@ import envConfig from '../config/env';
     }),
     AuthModule,
     UserModule,
-    AuthModule,
     RoomModule,
     CaptchaModule,
     MemberModule,
