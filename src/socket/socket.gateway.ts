@@ -169,7 +169,11 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.users.set(client.data.user.id, client);
     
     // 获取当前用户所有好友，并通知当前用户已上线
-    await this.handleStatus(client.data.user.id, true);
+    const onlineFriends = await this.handleStatus(client.data.user.id, true);
+    client.emit('onlineFriends', {
+      users: onlineFriends,
+      timestamp: Date.now() // 消息发送时间
+    });
     // 获取当前用户所有房间，通知当前用户已加入房间
 
   }
@@ -184,10 +188,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         creator,
       },
     });
+    const onlineFriends:string[] = [];
     // 通知所有好友当前用户状态
     friends.forEach(friend => {
       const receiver = this.users.get(friend.friend_id);
       if (receiver) {
+        onlineFriends.push(friend.friend_id);
         receiver.emit('status', {
           friend: friend.creator,
           status,
@@ -197,5 +203,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         this.logger.error(`User ${friend.friend_id} not found`);
       }
     });
+
+    return onlineFriends;
   }
 }
