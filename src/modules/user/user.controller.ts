@@ -4,6 +4,18 @@ import { UserService } from '@/modules/user/user.service';
 import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/user/dto/update-user.dto';
 import { UserRo, UserInfo } from '@/modules/user/user.interface';
+// upload.controller.ts
+import { 
+  UseInterceptors, 
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator 
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+
 @Controller('user')
 // @UseGuards(JwtAuthGuard) // 整个控制器的接口都需要鉴权
 export class UserController {
@@ -51,5 +63,47 @@ export class UserController {
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.userService.login(createUserDto.username, createUserDto.password);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, callback) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        callback(null, filename);
+      },
+    }),
+    limits: {
+      fileSize: 1024 * 1024 * 5, // 5MB限制
+    },
+    fileFilter: (req, file, callback) => {
+      if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf|doc|docx)$/)) {
+        return callback(new Error('Only image and document files are allowed!'), false);
+      }
+      callback(null, true);
+    },
+  }))
+  uploadSingleFile(
+    @UploadedFile(
+      new ParseFilePipe({ // 暂时去除文件类型校验
+        // validators: [
+        //   new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }), // 5MB
+        //   new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf)' }),
+        // ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return {
+      message: 'File uploaded successfully',
+      filename: file.filename,
+      originalname: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype,
+      // path: file.path,
+    };
   }
 }
