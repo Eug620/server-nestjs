@@ -139,7 +139,6 @@ export class UserController {
         exceptionFactory: (error) => {
           console.log(error);
           return new HttpException({
-            statusCode: HttpStatus.BAD_REQUEST,
             message: error || 'File upload failed',
           }, HttpStatus.BAD_REQUEST);
         },
@@ -149,20 +148,16 @@ export class UserController {
   ) {
     try {
       return {
-        statusCode: HttpStatus.OK,
         message: 'File uploaded successfully',
-        data: {
-          filename: file.filename,
-          originalname: file.originalname,
-          size: file.size,
-          mimetype: file.mimetype,
-          path: file.path,
-          userId: request.user.id
-        },
+        filename: file.filename,
+        originalname: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+        path: file.path,
+        userId: request.user.id
       };
     } catch (error) {
       throw new HttpException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'File upload failed',
         error: error.message,
       }, HttpStatus.INTERNAL_SERVER_ERROR);
