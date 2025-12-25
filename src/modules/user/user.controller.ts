@@ -74,7 +74,7 @@ export class UserController {
           // 从请求中获取用户ID
           const userId = req.user.id;
           // 创建用户专属目录
-          const userUploadDir = `./uploads/${userId}`;
+          const userUploadDir = `./public/${userId}`;
           // 检查目录是否存在，不存在则创建
           if (!existsSync(userUploadDir)) {
             mkdirSync(userUploadDir, { recursive: true });

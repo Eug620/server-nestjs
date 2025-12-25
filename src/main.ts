@@ -28,8 +28,7 @@ async function bootstrap() {
   
 
   // 支持静态资源
-  app.useStaticAssets('public', { prefix: '/static' });
-  app.useStaticAssets('uploads', { prefix: '/uploads' });
+  app.useStaticAssets('public', { prefix: '/public' });
 
   // 配置 session
   app.use(
