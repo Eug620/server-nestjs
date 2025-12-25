@@ -1,23 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,Req, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtAuthGuard } from '@/modules/auth/auth.guard';
 import { UserService } from '@/modules/user/user.service';
 import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/user/dto/update-user.dto';
 import { UserRo, UserInfo } from '@/modules/user/user.interface';
 // upload.controller.ts
-import { 
-  UseInterceptors, 
+import {
+  UseInterceptors,
   UploadedFile,
   ParseFilePipe,
   MaxFileSizeValidator,
-  FileTypeValidator 
+  FileTypeValidator
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, basename } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 @Controller('user')
-// @UseGuards(JwtAuthGuard) // 整个控制器的接口都需要鉴权
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
@@ -50,8 +50,8 @@ export class UserController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto,@Req() request) {
-    return this.userService.update(id, updateUserDto,request.user);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() request) {
+    return this.userService.update(id, updateUserDto, request.user);
   }
 
   @Delete(':id')
@@ -66,44 +66,106 @@ export class UserController {
   }
 
   @Post('upload')
+  @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      destination: (req: any, file, callback) => {
+        try {
+          // 从请求中获取用户ID
+          const userId = req.user.id;
+          // 创建用户专属目录
+          const userUploadDir = `./uploads/${userId}`;
+          // 检查目录是否存在，不存在则创建
+          if (!existsSync(userUploadDir)) {
+            mkdirSync(userUploadDir, { recursive: true });
+          }
+          callback(null, userUploadDir);
+        } catch (error) {
+          callback(new Error(`Failed to create upload directory: ${error.message}`), 'error');
+        }
+      },
+      filename: (req: any, file, callback) => {
+        const uniqueSuffix = Math.round(Math.random() * 1e9);
         const ext = extname(file.originalname);
-        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        const filename = `${uniqueSuffix}${ext}`;
         callback(null, filename);
       },
     }),
     limits: {
-      fileSize: 1024 * 1024 * 5, // 5MB限制
+      fileSize: 1024 * 1024 * 10, // 10MB限制
     },
     fileFilter: (req, file, callback) => {
-      if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf|doc|docx)$/)) {
-        return callback(new Error('Only image and document files are allowed!'), false);
+      // 定义允许的文件类型
+      const allowedTypes = /\.(jpg|jpeg|png|gif|pdf|doc|docx|xlsx|xls|csv|txt|rar|zip)$/;
+      // 检查文件扩展名是否在允许列表中
+      const ext = extname(file.originalname).toLowerCase();
+      if (!allowedTypes.test(ext)) {
+        callback(new HttpException('File type not allowed', HttpStatus.BAD_REQUEST), false);
+        return;
       }
+      // // 检查MIME类型
+      // const allowedMimes = [
+      //   'image/jpeg', 
+      //   'image/png', 
+      //   'image/gif', 
+      //   'application/pdf', 
+      //   'application/msword', 
+      //   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      //   'application/vnd.ms-excel', 
+      //   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      //   'text/csv', 
+      //   'text/plain', 
+      //   'application/rar', 
+      //   'application/zip'
+      // ];
+      // if (!allowedMimes.includes(file.mimetype)) {
+      //   callback(new HttpException('File type not allowed', HttpStatus.BAD_REQUEST), false);
+      //   return;
+      // }
       callback(null, true);
     },
   }))
   uploadSingleFile(
+    @Req() request,
     @UploadedFile(
-      new ParseFilePipe({ // 暂时去除文件类型校验
-        // validators: [
-        //   new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }), // 5MB
-        //   new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf)' }),
-        // ],
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 10, message: 'File size must be less than 10MB' }),
+          // new FileTypeValidator({ 
+          //   fileType: /\.(jpg|jpeg|png|gif|pdf|doc|docx)$/, 
+          //   message: 'File type must be one of: jpg, jpeg, png, gif, pdf, doc, docx'
+          // }),
+        ],
+        exceptionFactory: (error) => {
+          console.log(error);
+          return new HttpException({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: error || 'File upload failed',
+          }, HttpStatus.BAD_REQUEST);
+        },
       }),
     )
     file: Express.Multer.File,
   ) {
-    return {
-      message: 'File uploaded successfully',
-      filename: file.filename,
-      originalname: file.originalname,
-      size: file.size,
-      mimetype: file.mimetype,
-      // path: file.path,
-    };
+    try {
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'File uploaded successfully',
+        data: {
+          filename: file.filename,
+          originalname: file.originalname,
+          size: file.size,
+          mimetype: file.mimetype,
+          path: file.path,
+          userId: request.user.id
+        },
+      };
+    } catch (error) {
+      throw new HttpException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'File upload failed',
+        error: error.message,
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
