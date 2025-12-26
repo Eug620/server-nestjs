@@ -123,7 +123,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
    */
   @SubscribeMessage('join')
   async handleJoin(client: Socket, room: string): Promise<void> {
-    console.log('[join-room]','用户名：',client.data.user?.username,'房间id：',room)
+    // console.log('[join-room]','用户名：',client.data.user?.username,'房间id：',room)
     client.join(room);
     // 记录用户加入的房间
     this.userRooms.set(client.data.user.id, (this.userRooms.get(client.data.user.id) || new Set()).add(room));
