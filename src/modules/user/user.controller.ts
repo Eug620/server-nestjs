@@ -147,10 +147,21 @@ export class UserController {
     file: Express.Multer.File,
   ) {
     try {
+      // 解码文件名 - 多种方法尝试
+      let decodedFilename: string;
+      
+      // 方法1: 尝试 UTF-8 解码
+      try {
+        decodedFilename = Buffer.from(file.originalname, 'binary').toString('utf8');
+      } catch {
+        // 方法2: 尝试 latin1 解码
+        decodedFilename = Buffer.from(file.originalname, 'latin1').toString('utf8');
+      }
+
       return {
         message: 'File uploaded successfully',
         filename: file.filename,
-        originalname: file.originalname,
+        originalname: decodedFilename,
         size: file.size,
         mimetype: file.mimetype,
         path: file.path,
