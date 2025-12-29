@@ -9,7 +9,7 @@ export class CaptchaService {
             ignoreChars: '0o1i',
             noise: 2,
             color: true,
-            background: '#e2e3e4',
+            background: 'rgba(0,0,0,0)',
         });
         return captcha;
     }
