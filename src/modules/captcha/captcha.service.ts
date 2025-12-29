@@ -5,11 +5,11 @@ import * as svgCaptcha from 'svg-captcha';
 export class CaptchaService {
     generateCaptcha() {
         const captcha = svgCaptcha.create({
-            size: 6,
+            size: 4,
             ignoreChars: '0o1i',
             noise: 2,
             color: true,
-            background: '#f0f0f0',
+            background: '#e2e3e4',
         });
         return captcha;
     }
