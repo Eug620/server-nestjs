@@ -11,4 +11,7 @@ export class CreateUserDto {
     @IsNotEmpty({ message: '邮箱不能为空' })
     email: string;
 
+    @IsNotEmpty({ message: '验证码不能为空' })
+    captcha: string;
+
 }

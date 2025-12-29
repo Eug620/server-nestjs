@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, UseGuards, HttpException, HttpStatus, Session } from '@nestjs/common';
 import { JwtAuthGuard } from '@/modules/auth/auth.guard';
 import { UserService } from '@/modules/user/user.service';
 import { CreateUserDto } from '@/modules/user/dto/create-user.dto';
@@ -22,7 +22,16 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserDto, @Session() session) {
+    // 校验验证码
+    const captcha = session.captcha;
+    const captchaExpire = session.captchaExpire;
+    if (!captcha || !captchaExpire || Date.now() > captchaExpire) {
+      throw new HttpException('Invalid or expired captcha', HttpStatus.BAD_REQUEST);
+    }
+    if (captcha.toLowerCase() !== createUserDto.captcha.toLowerCase()) {
+      throw new HttpException('Incorrect captcha', HttpStatus.BAD_REQUEST);
+    }
     return this.userService.create(createUserDto);
   }
 
@@ -61,7 +70,16 @@ export class UserController {
   }
 
   @Post('login')
-  login(@Body() createUserDto: CreateUserDto) {
+  login(@Body() createUserDto: CreateUserDto, @Session() session) {
+    // 校验验证码
+    const captcha = session.captcha;
+    const captchaExpire = session.captchaExpire;
+    if (!captcha || !captchaExpire || Date.now() > captchaExpire) {
+      throw new HttpException('Invalid or expired captcha', HttpStatus.BAD_REQUEST);
+    }
+    if (captcha.toLowerCase() !== createUserDto.captcha.toLowerCase()) {
+      throw new HttpException('Incorrect captcha', HttpStatus.BAD_REQUEST);
+    }
     return this.userService.login(createUserDto.username, createUserDto.password);
   }
 
