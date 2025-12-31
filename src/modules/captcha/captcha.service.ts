@@ -8,8 +8,6 @@ export class CaptchaService {
             size: 4,
             ignoreChars: '0o1i',
             noise: 2,
-            color: true,
-            background: 'rgba(0,0,0,0)',
         });
         return captcha;
     }
