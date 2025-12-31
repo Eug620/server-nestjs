@@ -1,103 +1,209 @@
-### server-nestjs 项目介绍
+# server-nestjs
 
-这是一个基于 NestJS 框架开发的后端服务项目，提供了完整的 Web 服务功能，包括 RESTful API、WebSocket 通信、用户认证授权等。
+基于 NestJS 框架开发的后端服务项目，提供完整的 Web 服务功能，包括 RESTful API、WebSocket 实时通信、用户认证授权等。
 
-#### 项目类型与技术栈
+## 技术栈
 
- - 框架：NestJS ^11.0.1
- - 运行环境：Node.js
- - 数据库：MySQL 5.x/8.x
- - ORM：TypeORM ^0.3.27
- - API 文档：Swagger
- - 认证授权：JWT (JSON Web Token)
- - 实时通信：Socket.IO
- - 日志管理：Winston
+- **框架**: NestJS ^11.0.1
+- **运行环境**: Node.js
+- **数据库**: MySQL 5.x/8.x
+- **ORM**: TypeORM ^0.3.27
+- **API 文档**: Swagger
+- **认证授权**: JWT (JSON Web Token) + Passport
+- **实时通信**: Socket.IO
+- **日志管理**: Winston
+- **验证**: class-validator
+- **加密**: bcrypt
 
-#### 项目结构与主要模块
- - 核心模块
+## 项目结构
 
-    用户模块 (UserModule)
+```
+src/
+├── common/              # 公共模块
+│   ├── filter/         # 全局异常过滤器
+│   └── interceptor/    # 全局拦截器（响应转换）
+├── config/             # 配置文件
+├── logger/             # 日志服务
+├── modules/            # 业务模块
+│   ├── alert/          # 警报控制器
+│   ├── apply/          # 申请模块
+│   ├── auth/           # 认证授权模块
+│   ├── captcha/        # 验证码模块
+│   ├── friend/         # 好友模块
+│   ├── member/         # 成员模块
+│   ├── room/           # 房间模块
+│   └── user/           # 用户模块
+├── socket/             # WebSocket 网关
+├── app.module.ts       # 根模块
+└── main.ts             # 应用入口
+```
 
-     - 负责用户的增删改查等基础操作
-     - 使用 TypeOrmModule 与数据库进行交互
-     - 关联 UserEntity 实体类
-     
-    认证模块 (AuthModule)
+## 主要功能
 
-     - 提供 JWT 认证策略
-     - 集成 Passport.js 实现身份验证
+### 1. 用户系统
+- 用户注册、登录、信息管理
+- 密码加密存储（bcrypt）
+- 用户搜索
 
-    WebSocket 模块 (SocketGateway)
+### 2. 认证授权
+- JWT 令牌认证
+- Passport 策略集成
+- WebSocket 连接认证
 
-     - 支持实时双向通信
-     - 实现了消息收发、房间管理等功能
-     - 使用 JWT 进行 WebSocket 连接认证
+### 3. 房间与成员管理
+- 创建和管理聊天房间
+- 房间成员管理
+- 申请加入房间流程
 
-    日志服务 (LoggerService)
+### 4. 好友系统
+- 添加好友
+- 好友列表管理
+- 好友在线状态通知
 
-     - 全局日志记录功能
-     - 集成到异常过滤器和响应拦截器中
+### 5. 实时通信
+- WebSocket 服务（端口 3001，路径 `/websocket`）
+- 单对单消息
+- 房间群聊消息
+- 在线状态同步
+- 房间成员在线列表
 
-    警报控制器 (AlertController)
+### 6. 验证码
+- SVG 图形验证码生成
 
-     - 处理警报相关的 API 请求
+### 7. API 文档
+- Swagger 自动生成（访问路径：`/docs`）
 
-#### 主要功能特性
+## 环境配置
 
-  1. HTTP API
-    - RESTful API 设计
-    - 请求响应统一格式转换
-    - 全局异常处理
-    - Swagger API 文档（访问路径：/docs）
+根据环境选择对应的配置文件：
 
-  2. 认证与授权
-    - JWT 令牌认证
-    - 全局 JWT 模块配置
-    - WebSocket 连接认证
+- 开发环境：`.env.dev`
+- 生产环境：`.env.prod`
 
-  3. 实时通信
-    - WebSocket 服务（端口 3001，路径 /websocket）
-    - 支持单用户消息、房间消息
-    - 房间管理（加入/离开房间）
+### 配置项说明
 
-  4. 数据库操作
-    - MySQL 数据库连接配置
-    - 实体类自动同步（开发环境）
-    - 时区设置（+08:00）
+```bash
+# 数据库配置
+DB_HOST=localhost          # 数据库地址
+DB_PORT=3306              # 数据库端口
+DB_USER=root              # 数据库用户名
+DB_PASSWD=root            # 数据库密码
+DB_DATABASE=database_nest # 数据库名
 
-  5. 配置管理
-    - 环境变量配置
-    - 多环境支持（开发、测试、生产）
+# 环境配置
+NODE_ENV=dev              # 环境标识（dev/prod）
 
-#### 项目启动与开发
+# JWT 配置
+JWT_SECRET=server-nestjs-jwt-secret  # JWT 密钥
+JWT_EXPIRES_IN=24h                 # JWT 过期时间
+```
 
- 项目提供了完整的开发脚本：
+## 快速开始
 
-  ```bash
-    # 开发模式启动
-    npm run start:dev
+### 安装依赖
 
-    # 生产模式构建
-    npm run build
+```bash
+pnpm install
+```
 
-    # 生产模式运行
-    npm run start:prod
+### 启动开发服务器
 
-    # 格式化代码
-    npm run format
+```bash
+# 开发模式（热重载）
+pnpm run start:dev
 
-    # 代码检查
-    npm run lint
+# 调试模式
+pnpm run start:debug
+```
 
-    # 运行测试
-    npm run test
-  ```
-#### 部署与配置
+### 生产环境部署
 
-  - 支持环境变量配置，可通过 .env 文件或系统环境变量设置
-  - 主要配置项包括数据库连接信息、JWT 密钥、端口号等
-  - 静态资源支持（public 目录，访问路径：/static）
+```bash
+# 构建项目
+pnpm run build
 
-#### 总结
+# 启动生产服务
+pnpm run start:prod
 
-这是一个功能完善的 NestJS 后端项目，适合作为管理系统或其他 Web 应用的服务端基础框架。它集成了现代后端开发所需的各种组件，包括数据库操作、认证授权、WebSocket 通信、日志管理等，可以根据具体业务需求进行扩展和定制。
+# 使用 PM2 部署
+pnpm run pm2start
+```
+
+## 可用脚本
+
+| 命令 | 说明 |
+|------|------|
+| `pnpm run build` | 构建项目 |
+| `pnpm run start` | 启动应用 |
+| `pnpm run start:dev` | 开发模式启动（热重载） |
+| `pnpm run start:debug` | 调试模式启动 |
+| `pnpm run start:prod` | 生产模式启动 |
+| `pnpm run format` | 格式化代码 |
+| `pnpm run lint` | 代码检查并自动修复 |
+| `pnpm run test` | 运行单元测试 |
+| `pnpm run test:watch` | 监听模式运行测试 |
+| `pnpm run test:cov` | 生成测试覆盖率报告 |
+| `pnpm run test:e2e` | 运行端到端测试 |
+
+## WebSocket 消息类型
+
+客户端与服务器之间的 WebSocket 消息类型：
+
+| 事件 | 方向 | 说明 |
+|------|------|------|
+| `message` | 双向 | 普通消息 |
+| `user` | 双向 | 单对单消息 |
+| `room` | 双向 | 房间群聊消息 |
+| `join` | 客户端→服务器 | 加入房间 |
+| `leave` | 客户端→服务器 | 离开房间 |
+| `init` | 客户端→服务器 | 初始化用户连接 |
+| `online` | 服务器→客户端 | 房间成员在线列表 |
+| `onlineFriends` | 服务器→客户端 | 在线好友列表 |
+| `status` | 服务器→客户端 | 好友状态变更通知 |
+| `sender` | 服务器→客户端 | 消息发送回执 |
+
+## 数据库实体
+
+项目包含以下数据表实体：
+
+- **UserEntity** - 用户表
+- **RoomEntity** - 房间表
+- **MemberEntity** - 房间成员表
+- **ApplyEntity** - 申请记录表
+- **FriendEntity** - 好友关系表
+
+## 开发规范
+
+项目已配置以下开发工具：
+
+- **ESLint** - 代码质量检查
+- **Prettier** - 代码格式化
+- **Husky** - Git 钩子
+- **lint-staged** - 提交前代码检查
+- **Commitlint** - 提交信息规范
+
+提交代码时请遵循 Conventional Commits 规范：
+
+```bash
+pnpm run commit
+```
+
+## 访问地址
+
+启动服务后，可通过以下地址访问：
+
+- **API 服务**: http://localhost:3000
+- **Swagger 文档**: http://localhost:3000/docs
+- **WebSocket 服务**: ws://localhost:3001/websocket
+- **静态资源**: http://localhost:3000/public
+
+## 注意事项
+
+1. 生产环境请关闭 TypeORM 的 `synchronize` 选项，使用数据库迁移
+2. 请修改 JWT 密钥和 Session 密钥为实际生产环境的强密码
+3. 生产环境请配置 HTTPS 和 CORS 策略
+4. WebSocket 连接需要在连接时携带 JWT 令牌进行认证
+
+## License
+
+UNLICENSED
