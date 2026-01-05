@@ -31,9 +31,9 @@ export class ApplyService {
     return this.applyRepository.save(Object.assign(createApplyDto, { user_id }));
   }
 
-  findAll(userId: string) {
+  findAll(user_id: string) {
     return this.applyRepository.find({
-      where: { user_id: userId, isDeleted: false }, 
+      where: { user_id, isDeleted: false }, 
       order: { createdAt: 'DESC' },
       relations: ['user_info', 'room_info', 'apply_user_info'],
       select: {
@@ -97,9 +97,9 @@ export class ApplyService {
     });
   }
 
-  findApplyAll(userId: string) {
+  findApplyAll(apply_user_id: string) {
     return this.applyRepository.find({
-      where: { apply_user_id: userId, isDeleted: false }, 
+      where: { apply_user_id, isDeleted: false }, 
       order: { createdAt: 'DESC' },
       relations: ['user_info', 'room_info', 'apply_user_info'],
       select: {

@@ -20,8 +20,8 @@ export class ApplyController {
   }
 
   @Get('room')
-  findRoomAll(@Query('room_id') room_id: string) {
-    return this.applyService.findRoomAll(room_id);
+  findRoomAll(@Query('id') id: string) {
+    return this.applyService.findRoomAll(id);
   }
 
   
