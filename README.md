@@ -32,6 +32,7 @@ src/
 │   ├── friend/         # 好友模块
 │   ├── member/         # 成员模块
 │   ├── room/           # 房间模块
+│   ├── sse/            # SSE实时推送模块
 │   └── user/           # 用户模块
 ├── socket/             # WebSocket 网关
 ├── app.module.ts       # 根模块
@@ -67,10 +68,18 @@ src/
 - 在线状态同步
 - 房间成员在线列表
 
-### 6. 验证码
+### 6. SSE 实时推送
+- 服务器向客户端推送实时消息（Server-Sent Events）
+- 支持基于用户ID的定向推送
+- 支持向所有用户广播消息
+- 自动心跳机制（30秒间隔）
+- 连接断开自动清理
+- JWT 认证支持（从 query 参数获取 token）
+
+### 8. 验证码
 - SVG 图形验证码生成
 
-### 7. API 文档
+### 9. API 文档
 - Swagger 自动生成（访问路径：`/docs`）
 
 ## 环境配置
@@ -161,6 +170,57 @@ pnpm run pm2start
 | `onlineFriends` | 服务器→客户端 | 在线好友列表 |
 | `status` | 服务器→客户端 | 好友状态变更通知 |
 | `sender` | 服务器→客户端 | 消息发送回执 |
+
+## SSE 接口
+
+### 建立连接
+
+**接口地址**: `GET /sse?token={jwt_token}`
+
+**说明**: 建立 SSE 连接，需要从 query 参数传递 JWT token
+
+**响应格式**: Server-Sent Events 流
+
+### 推送消息
+
+在业务模块中注入 `SseService`，使用以下方法推送消息：
+
+```typescript
+// 向指定用户推送消息
+this.sseService.sendDataToUser(userId, {
+  type: 'notification',
+  message: '您有新的消息',
+  timestamp: new Date()
+});
+
+// 向所有用户广播消息
+this.sseService.broadcast({
+  type: 'system',
+  message: '系统通知',
+  timestamp: new Date()
+});
+```
+
+### 前端使用示例
+
+```javascript
+// 建立 SSE 连接
+const token = 'your-jwt-token';
+const eventSource = new EventSource(`/sse?token=${token}`);
+
+// 监听消息
+eventSource.onmessage = (event) => {
+  console.log('收到消息:', JSON.parse(event.data));
+};
+
+// 监听错误
+eventSource.onerror = (error) => {
+  console.error('SSE连接错误:', error);
+};
+
+// 关闭连接
+eventSource.close();
+```
 
 ## 数据库实体
 

@@ -18,6 +18,7 @@ import { ApplyModule } from '@/modules/apply/apply.module';
 import { ApplyEntity } from '@/modules/apply/entities/apply.entity';
 import { FriendModule } from '@/modules/friend/friend.module';
 import { FriendEntity } from '@/modules/friend/entities/friend.entity';
+import { SseModule } from '@/modules/sse/sse.module';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import envConfig from '../config/env';
     MemberModule,
     ApplyModule,
     FriendModule,
+    SseModule,
   ],
   controllers: [AlertController],
   providers: [LoggerService, SocketGateway],
