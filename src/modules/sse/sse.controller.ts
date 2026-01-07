@@ -7,7 +7,7 @@ import { JwtQueryAuthGuard } from '@/modules/auth/jwt-query.guard';
 @Controller('sse')
 @UseGuards(JwtQueryAuthGuard)
 export class SseController implements OnModuleDestroy {
-  private logger: Logger = new Logger('SSE');
+  private logger: Logger = new Logger(SseController.name);
   constructor(private readonly sseService: SseService, ) {}
 
 

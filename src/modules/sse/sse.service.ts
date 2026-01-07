@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Observable, Subject, interval, Subscription } from 'rxjs';
 import { MessageEvent } from '@nestjs/common';
 
@@ -6,6 +7,7 @@ import { MessageEvent } from '@nestjs/common';
 export class SseService {
   private eventSubjects = new Map<string, Subject<MessageEvent>>();
   private heartbeatSubscriptions = new Map<string, Subscription>();
+  private readonly logger = new Logger(SseService.name);
 
   createEventStream(userId: string): Observable<MessageEvent> {
     if (!this.eventSubjects.has(userId)) {
@@ -53,6 +55,27 @@ export class SseService {
     }
   }
 
+  broadcastHourlyTime(): void {
+    const now = new Date();
+    const timeData = {
+      type: 'hourly_time',
+      timestamp: now.getTime(),
+      time: now.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }),
+      message: '当前整点时间',
+    };
+
+    this.logger.log(`Broadcasting hourly time to ${this.eventSubjects.size} users: ${timeData.time}`);
+    this.broadcast(timeData);
+  }
+
   private startHeartbeat(userId: string): void {
     if (this.heartbeatSubscriptions.has(userId)) {
       return;
@@ -62,12 +85,19 @@ export class SseService {
       const subject = this.eventSubjects.get(userId);
       if (subject) {
         subject.next({
+          type: 'heartbeat',
           data: 'heartbeat',
+          retry: 2000, // 客户端将在断开连接后等待2秒再重连
           id: Date.now().toString(),
         });
       }
     });
 
     this.heartbeatSubscriptions.set(userId, subscription);
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  handleHourlyBroadcast(): void {
+    this.broadcastHourlyTime();
   }
 }
