@@ -13,7 +13,7 @@ export class SseService {
     if (!this.eventSubjects.has(userId)) {
       const subject = new Subject<MessageEvent>();
       this.eventSubjects.set(userId, subject);
-      this.startHeartbeat(userId);
+      // this.startHeartbeat(userId);
     }
 
     return (this.eventSubjects.get(userId) as Subject<MessageEvent>).asObservable();
@@ -76,28 +76,28 @@ export class SseService {
     this.broadcast(timeData);
   }
 
-  private startHeartbeat(userId: string): void {
-    if (this.heartbeatSubscriptions.has(userId)) {
-      return;
-    }
+  // private startHeartbeat(userId: string): void {
+  //   if (this.heartbeatSubscriptions.has(userId)) {
+  //     return;
+  //   }
 
-    const subscription = interval(1000 * 60).subscribe(() => {
-      const subject = this.eventSubjects.get(userId);
-      if (subject) {
-        subject.next({
-          type: 'heartbeat',
-          data: 'heartbeat',
-          retry: 2000, // 客户端将在断开连接后等待2秒再重连
-          id: Date.now().toString(),
-        });
-      }
-    });
+  //   const subscription = interval(1000 * 60).subscribe(() => {
+  //     const subject = this.eventSubjects.get(userId);
+  //     if (subject) {
+  //       subject.next({
+  //         type: 'heartbeat',
+  //         data: 'heartbeat',
+  //         retry: 2000, // 客户端将在断开连接后等待2秒再重连
+  //         id: Date.now().toString(),
+  //       });
+  //     }
+  //   });
 
-    this.heartbeatSubscriptions.set(userId, subscription);
-  }
+  //   this.heartbeatSubscriptions.set(userId, subscription);
+  // }
 
-  @Cron(CronExpression.EVERY_HOUR)
-  handleHourlyBroadcast(): void {
-    this.broadcastHourlyTime();
-  }
+  // @Cron(CronExpression.EVERY_HOUR)
+  // handleHourlyBroadcast(): void {
+  //   this.broadcastHourlyTime();
+  // }
 }
