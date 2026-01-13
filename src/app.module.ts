@@ -19,6 +19,7 @@ import { ApplyEntity } from '@/modules/apply/entities/apply.entity';
 import { FriendModule } from '@/modules/friend/friend.module';
 import { FriendEntity } from '@/modules/friend/entities/friend.entity';
 import { SseModule } from '@/modules/sse/sse.module';
+import { CronModule } from '@/modules/cron/cron.module';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import envConfig from '../config/env';
     ApplyModule,
     FriendModule,
     SseModule,
+    CronModule,
   ],
   controllers: [AlertController],
   providers: [LoggerService, SocketGateway],

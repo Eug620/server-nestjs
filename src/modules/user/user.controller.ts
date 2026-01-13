@@ -176,18 +176,24 @@ export class UserController {
         decodedFilename = Buffer.from(file.originalname, 'latin1').toString('utf8');
       }
 
+      // 构建可访问的URL路径
+      const userId = request.user.id;
+
       return {
-        message: 'File uploaded successfully',
+        code: 200,
+        message: '文件上传成功',
         filename: file.filename,
         originalname: decodedFilename,
         size: file.size,
         mimetype: file.mimetype,
         path: file.path,
-        userId: request.user.id
+        userId: userId,
+        uploadTime: Date.now(),
       };
     } catch (error) {
       throw new HttpException({
-        message: 'File upload failed',
+        code: 500,
+        message: '文件上传失败',
         error: error.message,
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
