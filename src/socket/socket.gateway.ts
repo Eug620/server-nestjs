@@ -6,6 +6,7 @@ import { WsJwtAuthGuard } from '@/socket/socket.guard'
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FriendEntity } from '@/modules/friend/entities/friend.entity';
+import { MemberEntity } from '@/modules/member/entities/member.entity';
 @WebSocketGateway(3001, {
   path: '/websocket',
   serveClient: true,
@@ -21,11 +22,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   private logger: Logger = new Logger('SocketGateway');
   private users = new Map<string, Socket>();
-  private userRooms = new Map<string, Set<string>>();
 
   constructor(
     @InjectRepository(FriendEntity)
     private friendRepository: Repository<FriendEntity>,
+    @InjectRepository(MemberEntity)
+    private memberRepository: Repository<MemberEntity>,
   ){}
 
   afterInit(server: Server) {
@@ -34,31 +36,13 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
-    // 如果用户存在，从所有房间中移除用户
-    if (client.data.user) {
-      this.users.delete(client.data.user.id);
-      // 获取当前用户所有好友，并通知当前用户已下线
-  
-      // 获取当前用户所有房间，通知当前用户已退出房间
-      const rooms = this.userRooms.get(client.data.user.id);
-      if (rooms) {
-        rooms.forEach(async room => {
-          client.leave(room);
-          const sockets = await this.wss.in(room).fetchSockets();
-          // 通知房间内所有成员当前用户已加入房间
-          this.wss.to(room).emit('online', {
-            room,
-            users: sockets.map(socket => socket.data.user?.id),
-            timestamp: Date.now() // 消息发送时间
-          }); // 发送给房间内所有成员包括自己
-        });
-
-        // 从用户房间映射中删除用户
-        this.userRooms.delete(client.data.user.id);
-      }
-    }
+    if (!client.data.user) return
+    // 从用户房间中移除用户
+    this.handleResigerRooms(client,'leave');
     // 获取当前用户所有好友，并通知当前用户已下线
-    await this.handleStatus(client.data.user.id, false);
+    await this.handleStatus(client, false);
+    // 从用户映射中移除用户
+    this.users.delete(client.data.user.id);
   }
 
   handleConnection(client: Socket) {
@@ -117,47 +101,6 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   }
 
   /**
-   * 加入房间
-   * @param client 
-   * @param room 
-   */
-  @SubscribeMessage('join')
-  async handleJoin(client: Socket, room: string): Promise<void> {
-    // console.log('[join-room]','用户名：',client.data.user?.username,'房间id：',room)
-    client.join(room);
-    // 记录用户加入的房间
-    this.userRooms.set(client.data.user.id, (this.userRooms.get(client.data.user.id) || new Set()).add(room));
-    // 获取当前房间所有成员
-    const sockets = await this.wss.in(room).fetchSockets();
-    // this.wss.socketsJoin(room);
-    // client.send({ room, message: `You have joined room: ${room}` });
-
-
-    // 通知房间内所有成员当前用户已加入房间
-    this.wss.to(room).emit('online', {
-      room,
-      users: sockets.map(socket => socket.data.user?.id),
-      timestamp: Date.now() // 消息发送时间
-    }); // 发送给房间内所有成员包括自己
-
-    // 加入房间
-    // client.emit('join', { room, message: `You have joined room: ${room}` });
-  }
-
-
-  /**
-   * 离开房间
-   * @param client 
-   * @param room 
-   */
-  @SubscribeMessage('leave')
-  handleLeave(client: Socket, room: string): void {
-    client.leave(room);
-    client.emit('leave', { room, message: `You have left room: ${room}` });
-  }
-
-
-  /**
  * 初始化用户
  * @param client 
  * @param room 
@@ -169,23 +112,51 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.users.set(client.data.user.id, client);
     
     // 获取当前用户所有好友，并通知当前用户已上线
-    const onlineFriends = await this.handleStatus(client.data.user.id, true);
-    client.emit('onlineFriends', {
-      users: onlineFriends,
-      timestamp: Date.now() // 消息发送时间
-    });
+    await this.handleStatus(client, true);
+ 
     // 获取当前用户所有房间，通知当前用户已加入房间
+    await this.handleResigerRooms(client);
+  }
 
+
+  /**
+   * 初始化用户所加入的房间
+   * @param client 
+   */
+  async handleResigerRooms(client: Socket, type: 'join' | 'leave' = 'join') {
+    const rooms = await this.memberRepository.find({
+      where: {
+        user_id: client.data.user.id,
+      },
+      relations: ['room_info'],
+    });
+    rooms.forEach(async room => {
+      // 加入房间/离开房间
+      client[type](room.room_id);
+
+      // 获取当前房间所有成员
+      const sockets = await this.wss.in(room.room_id).fetchSockets();
+      // 通知房间内所有成员当前房间活跃用户
+      this.wss.to(room.room_id).emit('online', {
+        room: room.room_id,
+        users: sockets.map(socket => socket.data.user?.id),
+        timestamp: Date.now() // 消息发送时间
+      }); // 发送给房间内所有成员包括自己
+
+      // 
+      client.emit(type, { room: room.room_id, message: `You have ${type} room: ${room.room_info.name}` });
+    });
   }
 
   /**
    * 通知所有好友当前用户状态
-   * @param id 用户id
+   * @param client 当前用户
+   * @param status 当前用户状态
    */
-  async handleStatus(creator: string, status: boolean) {
+  async handleStatus(client: Socket, status: boolean) {
     const friends = await this.friendRepository.find({
       where: {
-        creator,
+        creator: client.data.user.id,
       },
     });
     const onlineFriends:string[] = [];
@@ -204,6 +175,10 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       }
     });
 
-    return onlineFriends;
+    // 如果是上线状态，通知当前用户所有在线好友
+    status && client.emit('onlineFriends', {
+      users: onlineFriends,
+      timestamp: Date.now() // 消息发送时间
+    });
   }
 }
