@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FriendEntity } from '@/modules/friend/entities/friend.entity';
 import { MemberEntity } from '@/modules/member/entities/member.entity';
-@WebSocketGateway(3001, {
+@WebSocketGateway({
   path: '/websocket',
   serveClient: true,
   namespace: '/',

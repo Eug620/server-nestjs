@@ -5,19 +5,21 @@
 ## 技术栈
 
 - **框架**: NestJS ^11.0.1
-- **运行环境**: Node.js
+- **运行环境**: Node.js >= 18.x
 - **数据库**: MySQL 5.x/8.x
 - **ORM**: TypeORM ^0.3.27
-- **API 文档**: Swagger
-- **认证授权**: JWT (JSON Web Token) + Passport
-- **实时通信**: Socket.IO
+- **API 文档**: Swagger ^11.2.1
+- **认证授权**: JWT (JSON Web Token) ^11.0.1 + Passport ^0.7.0
+- **实时通信**: Socket.IO ^4.8.1
 - **服务器推送**: SSE (Server-Sent Events)
-- **定时任务**: @nestjs/schedule
-- **日志管理**: Winston
-- **验证**: class-validator
-- **加密**: bcrypt
-- **会话管理**: express-session
-- **文件上传**: multer
+- **定时任务**: @nestjs/schedule ^6.1.0
+- **日志管理**: Winston ^3.18.3 + nest-winston ^1.10.2
+- **验证**: class-validator ^0.14.2
+- **加密**: bcrypt ^6.0.0
+- **会话管理**: express-session ^1.18.2
+- **文件上传**: multer ^2.0.2
+- **验证码**: svg-captcha ^1.4.0
+- **包管理器**: pnpm
 
 ## 项目结构
 
@@ -29,7 +31,7 @@ src/
 ├── config/             # 配置文件
 ├── logger/             # 日志服务
 ├── modules/            # 业务模块
-│   ├── alert/          # 警报控制器
+│   ├── alert/          # 系统警报模块
 │   ├── apply/          # 申请模块
 │   ├── auth/           # 认证授权模块
 │   ├── captcha/        # 验证码模块
@@ -67,20 +69,20 @@ src/
 - 好友在线状态通知
 
 ### 5. WebSocket 实时通信
-- **服务端口**: 3001
+- **服务端口**: 与主服务相同（默认 3000）
 - **连接路径**: `/websocket`
 - **支持跨域**: 允许所有来源
+- **认证方式**: JWT 令牌（通过 `auth.token` 传递）
 - **消息类型**:
   - `message` - 普通消息
   - `user` - 单对单消息
   - `room` - 房间群聊消息
-  - `join` - 加入房间
-  - `leave` - 离开房间
   - `init` - 初始化用户连接
   - `online` - 房间成员在线列表
   - `onlineFriends` - 在线好友列表
   - `status` - 好友状态变更通知
   - `sender` - 消息发送回执
+  - `alert` - 系统警报消息
 
 ### 6. SSE 服务器推送
 - **接口地址**: `GET /sse?token={jwt_token}`
@@ -97,16 +99,31 @@ src/
 
 ### 8. 验证码
 - SVG 图形验证码生成
+- 4位数字验证码
+- 过滤易混淆字符（0o1i）
 
-### 9. API 文档
+### 9. 系统警报
+- 通过 WebSocket 广播系统通知
+- REST API 接口触发警报
+- 支持自定义警报消息内容
+
+### 10. API 文档
 - Swagger 自动生成（访问路径：`/docs`）
+- 支持 Bearer Token 认证
 
-### 10. 静态资源
+### 11. 静态资源
 - 支持静态文件访问（前缀：`/public`）
+- 自动映射 public 目录
 
-### 11. 会话管理
+### 12. 会话管理
 - 基于 express-session 的会话管理
-- 支持会话持久化
+- 默认会话过期时间 60 秒
+- 支持 HTTP-only Cookie
+
+### 13. 定时任务
+- 每日凌晨自动清空 `public` 目录下的所有文件夹
+- 保留 public 目录下的文件
+- 递归删除文件夹及其内容
 
 ## 环境配置
 
@@ -127,10 +144,14 @@ DB_DATABASE=database_nest # 数据库名
 
 # 环境配置
 NODE_ENV=dev              # 环境标识（dev/prod）
+PORT=3000                 # 服务端口（默认 3000）
 
 # JWT 配置
 JWT_SECRET=server-nestjs-jwt-secret  # JWT 密钥
 JWT_EXPIRES_IN=24h                 # JWT 过期时间
+
+# Session 配置（在 main.ts 中配置）
+SESSION_SECRET=your-secret-key     # Session 密钥
 ```
 
 ## 快速开始
@@ -204,7 +225,7 @@ pnpm run pm2start
 ```javascript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3001', {
+const socket = io('http://localhost:3000', {
   path: '/websocket',
   auth: {
     token: 'your-jwt-token'
@@ -214,7 +235,7 @@ const socket = io('http://localhost:3001', {
 // 监听连接成功
 socket.on('connect', () => {
   console.log('Connected to WebSocket server');
-  
+
   // 初始化用户
   socket.emit('init');
 });
@@ -242,6 +263,11 @@ socket.on('online', (data) => {
 // 监听好友状态
 socket.on('status', (data) => {
   console.log('Friend status changed:', data);
+});
+
+// 监听系统警报
+socket.on('alert', (data) => {
+  console.log('System alert:', data);
 });
 
 // 发送单对单消息
@@ -342,9 +368,10 @@ pnpm run commit
 
 - **API 服务**: http://localhost:3000
 - **Swagger 文档**: http://localhost:3000/docs
-- **WebSocket 服务**: ws://localhost:3001/websocket
+- **WebSocket 服务**: ws://localhost:3000/websocket
 - **静态资源**: http://localhost:3000/public
 - **SSE 服务**: http://localhost:3000/sse
+- **系统警报 API**: POST http://localhost:3000/alert
 
 ## 注意事项
 
@@ -352,22 +379,36 @@ pnpm run commit
    - 生产环境请关闭 TypeORM 的 `synchronize` 选项，使用数据库迁移
    - 请修改 JWT 密钥和 Session 密钥为实际生产环境的强密码
    - 生产环境请配置 HTTPS 和 CORS 策略
+   - Session 的 `secure` 选项在生产环境应设置为 `true`
 
 2. **WebSocket 认证**：
    - WebSocket 连接需要在连接时携带 JWT 令牌进行认证
-   - 在 `auth` 字段中传递 token
+   - 在 `auth.token` 字段中传递 token
+   - 使用 `WsJwtAuthGuard` 守卫保护整个网关
 
 3. **SSE 认证**：
    - SSE 连接需要在 query 参数中传递 JWT token
    - 格式：`/sse?token={jwt_token}`
+   - 使用 `JwtQueryGuard` 进行认证
 
 4. **定时任务**：
-   - 定时任务默认每天凌晨执行
+   - 定时任务默认每天凌晨执行（00:00）
    - 会清空 `public` 目录下的所有文件夹，但保留文件
+   - 使用 `CronExpression.EVERY_DAY_AT_MIDNIGHT` 表达式
 
 5. **环境判断**：
    - Docker 环境需要手动设置 `NODE_ENV` 变量
-   - 默认使用 `.env.dev` 配置文件
+   - 默认使用 `.env.dev` 配置文件（当 `NODE_ENV !== 'dev'` 时使用 `.env.prod`）
+
+6. **Session 配置**：
+   - 默认会话过期时间为 60 秒
+   - Cookie 设置为 `httpOnly: true`
+   - 生产环境需根据实际需求调整 `maxAge`
+
+7. **验证码配置**：
+   - 使用 4 位数字验证码
+   - 自动过滤易混淆字符（0o1i）
+   - 添加 2 条干扰线增强安全性
 
 ## License
 
