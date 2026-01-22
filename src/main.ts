@@ -30,22 +30,38 @@ async function bootstrap() {
   // 支持静态资源
   app.useStaticAssets('public', { prefix: '/public' });
 
+
+
+  // 启用 CORS（允许所有域）
+  app.enableCors({
+    origin: ['http://localhost', 'http://192.168.58.190'], // 允许的来源（credentials: true 时不能使用通配符）
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // 允许的 HTTP 方法
+    allowedHeaders: ['Content-Type', 'Authorization'], // 允许的请求头
+    credentials: true, // 是否允许携带凭证（如 Cookie）
+    maxAge: 3600, // 预检请求的有效期（单位：秒）
+  });
+
   // 配置 session
   app.use(
     session({
+      name: 'nestjs.sid',  // 自定义名称，不暴露技术栈
       secret: 'your-secret-key',
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: false, // 如果是 HTTPS 连接，设置为 true
-        httpOnly: true,
-        maxAge: 60000, // 会话过期时间（毫秒）
+          httpOnly: false,     // 防止 XSS
+          secure: false,       // 仅 HTTPS
+          sameSite: 'strict', // 防止 CSRF
+          // domain: '.example.com',
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24 * 7 // 7天
       },
+      // store: new RedisStore({ // 不用默认的内存存储
+      //     host: 'localhost',
+      //     port: 6379
+      // })
     }),
   );
-
-  // 启用 CORS（允许所有域）
-  app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);
 }
