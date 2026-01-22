@@ -45,7 +45,7 @@ async function bootstrap() {
   );
 
   // 启用 CORS（允许所有域）
-  // app.enableCors();
+  app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);
 }
