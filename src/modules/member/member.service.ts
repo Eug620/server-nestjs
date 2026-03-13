@@ -39,7 +39,8 @@ export class MemberService {
           id: true,
           name: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
+          creator: true
         },
       },
     });
