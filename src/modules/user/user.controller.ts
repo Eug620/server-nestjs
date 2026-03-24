@@ -110,7 +110,7 @@ export class UserController {
       },
     }),
     limits: {
-      fileSize: 1024 * 1024 * 10, // 10MB限制
+      fileSize: 1024 * 1024 * 80, // 80MB限制
     },
     fileFilter: (req, file, callback) => {
       // 定义允许的文件类型
@@ -148,7 +148,7 @@ export class UserController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 10, message: 'File size must be less than 10MB' }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 80, message: 'File size must be less than 80MB' }),
           // new FileTypeValidator({ 
           //   fileType: /\.(jpg|jpeg|png|gif|pdf|doc|docx)$/, 
           //   message: 'File type must be one of: jpg, jpeg, png, gif, pdf, doc, docx'
