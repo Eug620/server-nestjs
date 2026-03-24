@@ -114,7 +114,7 @@ export class UserController {
     },
     fileFilter: (req, file, callback) => {
       // 定义允许的文件类型
-      const allowedTypes = /\.(jpg|jpeg|png|gif|pdf|doc|docx|xlsx|xls|csv|txt|rar|zip)$/;
+      const allowedTypes = /\.(jpg|jpeg|png|gif|bmp|webp|svg|psd|pdf|doc|docx|xlsx|xls|csv|wps|ppt|pptx|md|txt|rar|zip|mp3|wav|flac|aac|m4a|ape|mp4|avi|mov|mkv|flv|wmv|webm|exe|msi|sh|bat|cma|py|js|apk|app|deb|rpm|html|htm|css|json|xml|jsp)$/;
       // 检查文件扩展名是否在允许列表中
       const ext = extname(file.originalname).toLowerCase();
       if (!allowedTypes.test(ext)) {
