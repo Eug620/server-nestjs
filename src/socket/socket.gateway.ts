@@ -37,12 +37,17 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
     if (!client.data.user) return
-    // 从用户房间中移除用户
-    this.handleResigerRooms(client,'leave');
-    // 获取当前用户所有好友，并通知当前用户已下线
-    await this.handleStatus(client, false);
-    // 从用户映射中移除用户
-    this.users.delete(client.data.user.id);
+
+    if (this.users.get(client.data.user.id) && this.users.get(client.data.user.id)?.id == client.id) {
+      // 从用户房间中移除用户
+      this.handleResigerRooms(client,'leave');
+      // 获取当前用户所有好友，并通知当前用户已下线
+      await this.handleStatus(client, false);
+      // 从用户映射中移除用户
+      this.users.delete(client.data.user.id);
+    } else {
+      this.logger.log(`Ignored disconnect for old socket of userId: ${client.data.user.id}`);
+    }
   }
 
   handleConnection(client: Socket) {
@@ -108,6 +113,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @SubscribeMessage('init')
   async handleInit(client: Socket): Promise<void> {
     this.logger.log(`init 当前用户信息: id: ${client.data.user.id}, username: ${client.data.user.username}`);
+    // 踢掉其他地方登录的账号
+    this.users.get(client.data.user.id)?.emit('kicked', { 
+      reason: 'Account logged in elsewhere', 
+      timestamp: Date.now() 
+    });
+    this.users.get(client.data.user.id)?.disconnect(true)
     // 记录用户id和对应的client映射关系
     this.users.set(client.data.user.id, client);
     
