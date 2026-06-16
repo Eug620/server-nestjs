@@ -34,8 +34,12 @@ async function bootstrap() {
 
   // 启用 CORS（允许所有域）
   app.enableCors({
-    // origin: ['http://localhost:8000', 'http://192.168.58.190:8000'], // 允许的来源（credentials: true 时不能使用通配符）
-    origin: ['http://localhost', 'http://62.234.18.27'], // 允许的来源（credentials: true 时不能使用通配符）
+    // origin: ['http://localhost', 'http://192.168.58.190'], // 允许的来源（credentials: true 时不能使用通配符）
+    // origin: ['http://localhost', 'http://62.234.18.27'], // 允许的来源（credentials: true 时不能使用通配符）
+    origin:(origin, callback) => {
+      // 在此处加入你的判断逻辑
+      callback(null, origin);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // 允许的 HTTP 方法
     allowedHeaders: ['Content-Type', 'Authorization'], // 允许的请求头
     credentials: true, // 是否允许携带凭证（如 Cookie）

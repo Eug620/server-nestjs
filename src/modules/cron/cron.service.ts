@@ -16,7 +16,7 @@ export class CronService {
    * 每日凌晨清空public目录下的所有文件夹
    * 使用CronExpression.CRON_DAILY表示每天凌晨执行
    */
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_WEEKEND)
   async cleanPublicDirectory() {
     this.logger.log('开始执行定时任务: 清空public目录');
     
