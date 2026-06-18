@@ -3,12 +3,19 @@ import { AppModule } from '@/app.module';
 import { HttpExceptionFilter } from '@/common/filter/http-exception/http-exception.filter';
 import { TransformInterceptor } from '@/common/interceptor/transform/transform.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { LoggerService } from '@/logger/logger.service';
 import session from 'express-session';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const config = app.get(ConfigService);
+  // 设置 api 访问前缀
+  // const prefix = config.get('PREFIX');
+  // app.setGlobalPrefix(prefix);
+
   // 注册全局 logger 拦截器
   const loggerService = app.get(LoggerService);
   // 注册全局错误的过滤器
@@ -17,14 +24,28 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor(loggerService))
 
   // 设置swagger文档
-  const config = new DocumentBuilder()
+  const swaggerOptions = new DocumentBuilder()
     .setTitle('NestJS 管理后台')
     .setDescription('NestJS 管理后台接口文档')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header', // 认证信息放置的位置
+        name: 'Authorization', // 显式指定请求头名称
+        description: '请在请求头中携带 JWT 令牌，格式：Bearer <token>',
+      },
+      'Authorization',
+    )
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  const document = SwaggerModule.createDocument(app, swaggerOptions);
+  SwaggerModule.setup('docs', app, document,  {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customSiteTitle: 'Server-Nest API Docs',
+  });
   
 
   // 支持静态资源
