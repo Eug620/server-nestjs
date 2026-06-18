@@ -16,11 +16,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, basename } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('用户管理')
 @Controller('user')
+@ApiBearerAuth('Authorization')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
+  @ApiOperation({
+    summary: '创建用户',
+  })
   @Post()
   create(@Body() createUserDto: CreateUserDto, @Session() session) {
     // 校验验证码
@@ -35,6 +41,9 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @ApiOperation({
+    summary: '分页查询用户',
+  })
   @Get()
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   async findAll(@Query() query, @Req() request): Promise<UserRo> {
@@ -43,6 +52,9 @@ export class UserController {
     return await this.userService.findAll(query.page, query.pageSize);
   }
 
+  @ApiOperation({
+    summary: '搜索用户',
+  })
   @Get('/search')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   async searchAll(@Query('username') username: string): Promise<UserInfo[]> {
@@ -51,24 +63,36 @@ export class UserController {
   }
 
 
+  @ApiOperation({
+    summary: 'id搜索用户',
+  })
   @Get(':id')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
+  @ApiOperation({
+    summary: 'id更新用户',
+  })
   @Patch(':id')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() request) {
     return this.userService.update(id, updateUserDto, request.user);
   }
 
+  @ApiOperation({
+    summary: 'id删除用户',
+  })
   @Delete(':id')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }
 
+  @ApiOperation({
+    summary: '登录',
+  })
   @Post('login')
   login(@Body() createUserDto: CreateUserDto, @Session() session) {
     // 校验验证码
@@ -83,6 +107,9 @@ export class UserController {
     return this.userService.login(createUserDto.username, createUserDto.password);
   }
 
+  @ApiOperation({
+    summary: '上传文件',
+  })
   @Post('upload')
   @UseGuards(JwtAuthGuard) // 仅该接口需要鉴权
   @UseInterceptors(FileInterceptor('file', {

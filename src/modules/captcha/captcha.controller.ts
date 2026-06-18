@@ -1,12 +1,17 @@
 import { Controller, Get, Res, Session } from '@nestjs/common';
 import { CaptchaService } from '@/modules/captcha/captcha.service';
 import type { Response } from 'express';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
-
+@ApiTags('验证码')
 @Controller('captcha')
+@ApiBearerAuth('Authorization')
 export class CaptchaController {
     constructor(private captchaService: CaptchaService) { }
 
+    @ApiOperation({
+        summary: '获取验证码',
+    })
     @Get()
     getCaptcha(@Res() res: Response, @Session() session) {
         const captcha = this.captchaService.generateCaptcha();

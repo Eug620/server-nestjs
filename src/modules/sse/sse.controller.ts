@@ -2,8 +2,9 @@ import { Controller, Get, Sse, MessageEvent, UseGuards, Logger, Req, OnModuleDes
 import { Observable } from 'rxjs';
 import { SseService } from './sse.service';
 import { JwtQueryAuthGuard } from '@/modules/auth/jwt-query.guard';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
-
+@ApiTags('SSE连接')
 @Controller('sse')
 @UseGuards(JwtQueryAuthGuard)
 export class SseController implements OnModuleDestroy {
@@ -11,6 +12,9 @@ export class SseController implements OnModuleDestroy {
   constructor(private readonly sseService: SseService, ) {}
 
 
+  @ApiOperation({
+    summary: '创建连接',
+  })
   @Get()
   @Sse()
   sse(@Req() req: any): Observable<MessageEvent> {
