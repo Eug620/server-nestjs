@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerService } from '@/logger/logger.service';
 import { SocketGateway } from '@/socket/socket.gateway';
 import { AlertController } from '@/modules/alert/alert.controller';
@@ -23,6 +24,7 @@ import { CronModule } from '@/modules/cron/cron.module';
 import envConfig from '../config/env';
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true, // 设置为全局
       envFilePath: [envConfig.path],

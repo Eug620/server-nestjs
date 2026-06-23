@@ -61,4 +61,33 @@ export class CronService {
     this.logger.log('手动触发清空public目录任务');
     await this.cleanPublicDirectory();
   }
+
+
+  // 使用 Cron 表达式：每个工作日（周一至周五）的12、18执行
+  @Cron('0 12 * * 1-5')
+  @Cron('0 18 * * 1-5')
+  handleOffWork() {
+    this.logger.log('工作日12、18的任务执行了！');
+    // 在这里编写你的业务逻辑
+  }
+
+  // 使用 Cron 表达式：每个工作日（周一至周五）的8.30、13.30执行
+  @Cron('0 30 8 * * 1-5')
+  @Cron('0 30 13 * * 1-5')
+  handleGoToWork() {
+    this.logger.log('工作日8.30、13.30的任务执行了！');
+    // 在这里编写你的业务逻辑
+  }
+
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  handleTest() {
+    this.logger.log('工作日test的任务执行了！');
+    // 在这里编写你的业务逻辑
+    // this.socketGateway.wss.emit('alert', {
+    //   message: '测试定时任务',
+    //   sender:'系统通知'
+    // })
+  }
+
 }
