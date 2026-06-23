@@ -13,8 +13,8 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   // 设置 api 访问前缀
-  // const prefix = config.get('PREFIX');
-  // app.setGlobalPrefix(prefix);
+  const prefix = config.get('PREFIX');
+  app.setGlobalPrefix(prefix);
 
   // 注册全局 logger 拦截器
   const loggerService = app.get(LoggerService);
