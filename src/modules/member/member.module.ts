@@ -10,5 +10,6 @@ import { UserEntity } from '@/modules/user/entities/user.entity';
   imports: [TypeOrmModule.forFeature([MemberEntity, RoomEntity, UserEntity])],
   controllers: [MemberController],
   providers: [MemberService],
+  exports: [TypeOrmModule],
 })
 export class MemberModule {}

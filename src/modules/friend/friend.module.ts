@@ -9,5 +9,6 @@ import { UserEntity } from '@/modules/user/entities/user.entity';
   imports: [TypeOrmModule.forFeature([FriendEntity, UserEntity])], // 关联数据库
   controllers: [FriendController],
   providers: [FriendService],
+  exports: [TypeOrmModule],
 })
 export class FriendModule {}

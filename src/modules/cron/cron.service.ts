@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { SocketGateway } from '@/socket/socket.gateway';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,7 +9,7 @@ export class CronService {
   private readonly logger = new Logger(CronService.name);
   private readonly publicDir = path.join(process.cwd(), 'public');
 
-  constructor() {
+  constructor(private readonly socketGateway: SocketGateway) {
     this.logger.log('CronService initialized');
   }
 
@@ -69,6 +70,10 @@ export class CronService {
   handleOffWork() {
     this.logger.log('工作日12、18的任务执行了！');
     // 在这里编写你的业务逻辑
+    this.socketGateway.wss.emit('alert', {
+      message: '下班喽！',
+      sender:'系统通知'
+    })
   }
 
   // 使用 Cron 表达式：每个工作日（周一至周五）的8.30、13.30执行
@@ -77,6 +82,10 @@ export class CronService {
   handleGoToWork() {
     this.logger.log('工作日8.30、13.30的任务执行了！');
     // 在这里编写你的业务逻辑
+    this.socketGateway.wss.emit('alert', {
+      message: '上班喽！',
+      sender:'系统通知'
+    })
   }
 
 
@@ -84,10 +93,10 @@ export class CronService {
   handleTest() {
     this.logger.log('工作日test的任务执行了！');
     // 在这里编写你的业务逻辑
-    // this.socketGateway.wss.emit('alert', {
-    //   message: '测试定时任务',
-    //   sender:'系统通知'
-    // })
+    this.socketGateway.wss.emit('alert', {
+      message: '测试定时任务',
+      sender:'系统通知'
+    })
   }
 
 }

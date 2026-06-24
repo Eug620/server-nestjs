@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerService } from '@/logger/logger.service';
-import { SocketGateway } from '@/socket/socket.gateway';
 import { AlertController } from '@/modules/alert/alert.controller';
 import { UserModule } from '@/modules/user/user.module';
 import { UserEntity } from '@/modules/user/entities/user.entity';
@@ -21,6 +20,7 @@ import { FriendModule } from '@/modules/friend/friend.module';
 import { FriendEntity } from '@/modules/friend/entities/friend.entity';
 import { SseModule } from '@/modules/sse/sse.module';
 import { CronModule } from '@/modules/cron/cron.module';
+import { SocketModule } from '@/socket/socket.module';
 import envConfig from '../config/env';
 @Module({
   imports: [
@@ -45,8 +45,6 @@ import envConfig from '../config/env';
         // logging: true, // 开启打印生成sql语句
       }),
     }),
-    // 注册 TypeOrmModule 并指定要使用的实体 - socket.gateway使用
-    TypeOrmModule.forFeature([MemberEntity,FriendEntity]),
     PassportModule,
     // 配置 JWT 模块
     JwtModule.registerAsync({
@@ -68,8 +66,9 @@ import envConfig from '../config/env';
     FriendModule,
     SseModule,
     CronModule,
+    SocketModule
   ],
   controllers: [AlertController],
-  providers: [LoggerService, SocketGateway],
+  providers: [LoggerService],
 })
 export class AppModule { }
