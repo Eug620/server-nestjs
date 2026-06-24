@@ -136,39 +136,39 @@ export class UserController {
         callback(null, filename);
       },
     }),
-    limits: {
-      fileSize: 1024 * 1024 * 80, // 80MB限制
-    },
-    fileFilter: (req, file, callback) => {
-      // 定义允许的文件类型
-      const allowedTypes = /\.(jpg|jpeg|png|gif|bmp|webp|svg|psd|pdf|doc|docx|xlsx|xls|csv|wps|ppt|pptx|md|txt|rar|zip|mp3|wav|flac|aac|m4a|ape|mp4|avi|mov|mkv|flv|wmv|webm|exe|msi|sh|bat|cma|py|js|apk|app|deb|rpm|html|htm|css|json|xml|jsp)$/;
-      // 检查文件扩展名是否在允许列表中
-      const ext = extname(file.originalname).toLowerCase();
-      if (!allowedTypes.test(ext)) {
-        callback(new HttpException('File type not allowed', HttpStatus.BAD_REQUEST), false);
-        return;
-      }
-      // // 检查MIME类型
-      // const allowedMimes = [
-      //   'image/jpeg', 
-      //   'image/png', 
-      //   'image/gif', 
-      //   'application/pdf', 
-      //   'application/msword', 
-      //   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      //   'application/vnd.ms-excel', 
-      //   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      //   'text/csv', 
-      //   'text/plain', 
-      //   'application/rar', 
-      //   'application/zip'
-      // ];
-      // if (!allowedMimes.includes(file.mimetype)) {
-      //   callback(new HttpException('File type not allowed', HttpStatus.BAD_REQUEST), false);
-      //   return;
-      // }
-      callback(null, true);
-    },
+    // limits: {
+    //   fileSize: 1024 * 1024 * 80, // 80MB限制
+    // },
+    // fileFilter: (req, file, callback) => {
+    //   // 定义允许的文件类型
+    //   const allowedTypes = /\.(jpg|jpeg|png|gif|bmp|webp|svg|psd|pdf|doc|docx|xlsx|xls|csv|wps|ppt|pptx|md|txt|rar|zip|mp3|wav|flac|aac|m4a|ape|mp4|avi|mov|mkv|flv|wmv|webm|exe|msi|sh|bat|cma|py|js|apk|app|deb|rpm|html|htm|css|json|xml|jsp)$/;
+    //   // 检查文件扩展名是否在允许列表中
+    //   const ext = extname(file.originalname).toLowerCase();
+    //   if (!allowedTypes.test(ext)) {
+    //     callback(new HttpException('File type not allowed', HttpStatus.BAD_REQUEST), false);
+    //     return;
+    //   }
+    //   // 检查MIME类型
+    //   const allowedMimes = [
+    //     'image/jpeg', 
+    //     'image/png', 
+    //     'image/gif', 
+    //     'application/pdf', 
+    //     'application/msword', 
+    //     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    //     'application/vnd.ms-excel', 
+    //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    //     'text/csv', 
+    //     'text/plain', 
+    //     'application/rar', 
+    //     'application/zip'
+    //   ];
+    //   if (!allowedMimes.includes(file.mimetype)) {
+    //     callback(new HttpException('File type not allowed', HttpStatus.BAD_REQUEST), false);
+    //     return;
+    //   }
+    //   callback(null, true);
+    // },
   }))
   uploadSingleFile(
     @Req() request,
