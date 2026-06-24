@@ -71,8 +71,8 @@ export class CronService {
     this.logger.log('工作日12、18的任务执行了！');
     // 在这里编写你的业务逻辑
     this.socketGateway.wss.emit('alert', {
-      message: '下班喽！',
-      sender:'系统通知'
+      message: '关电脑，撤！',
+      sender:'🔔 下班提醒'
     })
   }
 
@@ -83,20 +83,8 @@ export class CronService {
     this.logger.log('工作日8.30、13.30的任务执行了！');
     // 在这里编写你的业务逻辑
     this.socketGateway.wss.emit('alert', {
-      message: '上班喽！',
-      sender:'系统通知'
+      message: '开电脑，干！',
+      sender:'⏰ 上班提醒'
     })
   }
-
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  handleTest() {
-    this.logger.log('工作日test的任务执行了！');
-    // 在这里编写你的业务逻辑
-    this.socketGateway.wss.emit('alert', {
-      message: '测试定时任务',
-      sender:'系统通知'
-    })
-  }
-
 }
