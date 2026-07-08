@@ -27,7 +27,7 @@ export class RoomService {
   }
   async findMineAll(page: number = 1, pageSize: number = 10, user: UserInfo): Promise<RoomRo> {
     // 从数据库查询所有房间
-    const [posts, totalCount] = await this.roomRepository.findAndCount({
+    const [rows, total] = await this.roomRepository.findAndCount({
       skip: (page - 1) * pageSize, // 分页偏移量
       take: pageSize, // 每页显示的记录数
       where: {
@@ -59,16 +59,14 @@ export class RoomService {
 
     });
     return {
-      list: posts,
-      count: totalCount,
-      totalPages: Math.ceil(totalCount / pageSize), // 计算总页数
-      currentPage: page, // 当前页
+      rows,
+      total,
     };
   }
 
   async findAll(page: number = 1, pageSize: number = 10): Promise<RoomRo> {
     // 从数据库查询所有房间
-    const [posts, totalCount] = await this.roomRepository.findAndCount({
+    const [rows, total] = await this.roomRepository.findAndCount({
       skip: (page - 1) * pageSize, // 分页偏移量
       take: pageSize, // 每页显示的记录数
       order: {
@@ -99,10 +97,8 @@ export class RoomService {
 
     });
     return {
-      list: posts,
-      count: totalCount,
-      totalPages: Math.ceil(totalCount / pageSize), // 计算总页数
-      currentPage: page, // 当前页
+      rows,
+      total,
     };
   }
 

@@ -1,10 +1,8 @@
 import { UserEntity } from '@/modules/user/entities/user.entity';
 
 export interface UserRo {
-  list: UserEntity[];
-  count: number;
-  totalPages: number;
-  currentPage: number;
+  rows: UserEntity[];
+  total: number;
 }
 
 export interface UserInfo {

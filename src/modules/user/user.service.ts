@@ -48,7 +48,7 @@ export class UserService {
   }
 
   async findAll(page: number = 1, pageSize: number = 10): Promise<UserRo> {
-    const [posts, totalCount] = await this.userRepository.findAndCount({
+    const [rows, total] = await this.userRepository.findAndCount({
       skip: (page - 1) * pageSize, // 分页偏移量
       take: pageSize, // 每页显示的记录数
       order: { createdAt: 'DESC' },
@@ -57,10 +57,8 @@ export class UserService {
     });
 
     return {
-      list: posts,
-      count: totalCount,
-      totalPages: Math.ceil(totalCount / pageSize), // 计算总页数
-      currentPage: page, // 当前页
+      rows,
+      total,
     };
   }
 
