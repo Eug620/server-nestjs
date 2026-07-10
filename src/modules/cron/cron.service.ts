@@ -72,7 +72,9 @@ export class CronService {
     // 在这里编写你的业务逻辑
     this.socketGateway.wss.emit('alert', {
       message: '关电脑，撤！',
-      sender:'🔔 下班提醒'
+      sender:'🔔 下班提醒',
+      timestamp: Date.now()
+
     })
   }
 
@@ -84,7 +86,8 @@ export class CronService {
     // 在这里编写你的业务逻辑
     this.socketGateway.wss.emit('alert', {
       message: '开电脑，干！',
-      sender:'⏰ 上班提醒'
+      sender:'⏰ 上班提醒',
+      timestamp: Date.now()
     })
   }
 }

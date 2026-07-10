@@ -14,16 +14,15 @@ export class AlertController {
     })
     @Post()
     @HttpCode(200)
-    sendAlert(@Body() dto: { message: string }) {
-        const alertMessage = {
-            sender: '系统通知',
+    sendAlert(@Body() dto: { message: string, sender: string }) {
+        this.socketGateway.wss.emit('alert', {
+            sender: dto.sender ||'系统通知',
             message: dto.message,
-        };
-        this.socketGateway.wss.emit('alert', alertMessage);
+            timestamp: Date.now()
+        });
         return {
             code: 200,
-            msg: 'Alert sent successfully',
-            data: null,
+            msg: 'Alert successfully',
         };
     }
 }
