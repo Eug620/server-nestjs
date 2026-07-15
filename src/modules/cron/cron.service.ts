@@ -68,26 +68,33 @@ export class CronService {
   @Cron('0 12 * * 1-5')
   @Cron('0 18 * * 1-5')
   handleOffWork() {
-    this.logger.log('工作日12、18的任务执行了！');
-    // 在这里编写你的业务逻辑
-    this.socketGateway.wss.emit('alert', {
-      message: '关电脑，撤！',
-      sender:'🔔 下班提醒',
-      timestamp: Date.now()
-
-    })
+    try {
+      this.logger.log('工作日12、18的任务执行了！');
+      // 在这里编写你的业务逻辑
+      this.socketGateway.wss.emit('alert', {
+        message: '关电脑，撤！',
+        sender:'🔔 下班提醒',
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      this.logger.error('处理下班提醒时发生错误', error.stack);
+    }
   }
 
   // 使用 Cron 表达式：每个工作日（周一至周五）的8.30、13.30执行
   @Cron('0 30 8 * * 1-5')
   @Cron('0 30 13 * * 1-5')
   handleGoToWork() {
-    this.logger.log('工作日8.30、13.30的任务执行了！');
-    // 在这里编写你的业务逻辑
-    this.socketGateway.wss.emit('alert', {
-      message: '开电脑，干！',
-      sender:'⏰ 上班提醒',
-      timestamp: Date.now()
-    })
+    try {
+      this.logger.log('工作日8.30、13.30的任务执行了！');
+      // 在这里编写你的业务逻辑
+      this.socketGateway.wss.emit('alert', {
+        message: '开电脑，干！',
+        sender:'⏰ 上班提醒',
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      this.logger.error('处理上班提醒时发生错误', error.stack);
+    }
   }
 }
