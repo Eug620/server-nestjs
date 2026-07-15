@@ -66,10 +66,17 @@ export class CronService {
 
   // 使用 Cron 表达式：每个工作日（周一至周五）的12、18执行
   @Cron('0 12 * * 1-5')
+  handleNoonOffWork() {
+    this.handleOffWork('中午 12 点');
+  }
   @Cron('0 18 * * 1-5')
-  handleOffWork() {
+  handleEveningOffWork() {
+    this.handleOffWork('晚上 6 点');
+  }
+
+  private handleOffWork(time: string) {
     try {
-      this.logger.log('工作日12、18的任务执行了！');
+      this.logger.log(`工作日${time}的任务执行了！`);
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
         message: '关电脑，撤！',
@@ -83,10 +90,17 @@ export class CronService {
 
   // 使用 Cron 表达式：每个工作日（周一至周五）的8.30、13.30执行
   @Cron('0 30 8 * * 1-5')
+  handleMorningGoToWork() {
+    this.handleGoToWork('早上 8 点 30 分');
+  }
   @Cron('0 30 13 * * 1-5')
-  handleGoToWork() {
+  handleAfternoonGoToWork() {
+    this.handleGoToWork('下午 1 点 30 分');
+  }
+
+  private handleGoToWork(time: string) {
     try {
-      this.logger.log('工作日8.30、13.30的任务执行了！');
+      this.logger.log(`工作日${time}的任务执行了！`);
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
         message: '开电脑，干！',
