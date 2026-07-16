@@ -63,6 +63,20 @@ export class CronService {
     await this.cleanPublicDirectory();
   }
 
+  @Cron(CronExpression.EVERY_HOUR)
+  handleHourlyTask() {
+    try {
+      this.logger.log(`每小时的任务执行了！`);
+      // 在这里编写你的业务逻辑
+      this.socketGateway.wss.emit('alert', {
+        message: `${new Date().toTimeString().slice(0, 8)}`,
+        sender: '系统播报',
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      this.logger.error('处理每小时任务时发生错误', error.stack);
+    }
+  }
 
   // 使用 Cron 表达式：每个工作日（周一至周五）的12、18执行
   @Cron('0 12 * * 1-5')
@@ -80,7 +94,7 @@ export class CronService {
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
         message: '关电脑，撤！',
-        sender:'🔔 下班提醒',
+        sender:'下班提醒',
         timestamp: Date.now()
       });
     } catch (error) {
@@ -104,7 +118,7 @@ export class CronService {
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
         message: '开电脑，干！',
-        sender:'⏰ 上班提醒',
+        sender:'上班提醒',
         timestamp: Date.now()
       });
     } catch (error) {
