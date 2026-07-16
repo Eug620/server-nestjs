@@ -20,7 +20,7 @@ export class CronService {
   @Cron(CronExpression.EVERY_WEEKEND)
   async cleanPublicDirectory() {
     this.logger.log('开始执行定时任务: 清空public目录');
-    
+
     try {
       // 检查public目录是否存在
       if (!fs.existsSync(this.publicDir)) {
@@ -69,8 +69,8 @@ export class CronService {
       this.logger.log(`每小时的任务执行了！`);
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
-        message: `${new Date().toTimeString().slice(0, 8)}`,
-        sender: '系统播报',
+        message: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+        sender: '整点播报',
         timestamp: Date.now()
       });
     } catch (error) {
@@ -94,7 +94,7 @@ export class CronService {
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
         message: '关电脑，撤！',
-        sender:'下班提醒',
+        sender: '下班提醒',
         timestamp: Date.now()
       });
     } catch (error) {
@@ -118,7 +118,7 @@ export class CronService {
       // 在这里编写你的业务逻辑
       this.socketGateway.wss.emit('alert', {
         message: '开电脑，干！',
-        sender:'上班提醒',
+        sender: '上班提醒',
         timestamp: Date.now()
       });
     } catch (error) {
