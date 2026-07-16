@@ -20,9 +20,6 @@ export class AlertController {
             message: dto.message,
             timestamp: Date.now()
         });
-        return {
-            code: 200,
-            msg: 'Alert successfully',
-        };
+        return 'Alert successfully';
     }
 }
